@@ -2,4 +2,9 @@ flask
 gunicorn
 requests
 numpy
-opencv-python
+opencv-python-headless
+flask-socketio
+python-socketio
+eventlet
+flask-Cors
+Pillow
