@@ -1,0 +1,955 @@
+{% extends "base.html" %}
+
+{% block title %}Client Dashboard - Smart Parking System{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <!-- Welcome Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body text-center p-4">
+                    <h2 class="fw-bold mb-2">
+                        <i class="fas fa-tachometer-alt text-primary"></i> Welcome, {{ session.client_name }}!
+                    </h2>
+                    <p class="text-muted mb-0">Manage your parking reservations</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notifications Section -->
+    <div id="notifications-section" class="row mb-4" style="display: none;">
+        <div class="col-12">
+            <div id="notification-card" class="card">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div id="notification-icon" class="me-3">
+                            <i class="fas fa-bell text-primary fs-4"></i>
+                        </div>
+                        <div class="flex-grow-1">
+                            <h5 id="notification-title" class="mb-1">Notification</h5>
+                            <p id="notification-message" class="mb-0 text-muted"></p>
+                        </div>
+                        <button type="button" class="btn-close" onclick="hideNotification()" aria-label="Close"></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Parking Status Card -->
+        <div class="col-lg-6 mb-4">
+            <div class="card h-100">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-parking"></i> Current Parking Status
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div id="parking-status">
+                        <div class="loading-spinner show text-center">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                            <p class="mt-2">Loading parking status...</p>
+                        </div>
+                        
+                        <div id="status-content" style="display: none;">
+                            <div class="text-center mb-4">
+                                <span id="status-indicator" class="status-indicator"></span>
+                                <h3 id="status-text" class="d-inline-block mb-0"></h3>
+                            </div>
+                            
+                            
+                            <div class="mt-3">
+                                <div class="progress" style="height: 15px;">
+                                    <div id="occupancy-bar" class="progress-bar" role="progressbar" style="width: 0%"></div>
+                                </div>
+                                <small class="text-muted">
+                                    Occupancy: <span id="occupancy-rate">0</span>%
+                                </small>
+                            </div>
+                            
+                            <!-- Next Free Slot Timer -->
+                            <div id="next-slot-timer" class="mt-3" style="display: none;">
+                                <div class="alert alert-info text-center">
+                                    <i class="fas fa-clock"></i>
+                                    <strong>Next free slot in:</strong>
+                                    <span id="next-slot-countdown" class="fw-bold text-primary"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Reservation Card -->
+        <div class="col-lg-6 mb-4">
+            <div class="card h-100">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-calendar-plus"></i> Make Reservation
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div id="reservation-section">
+                        <div class="text-center mb-4">
+                            <button id="reserve-btn" class="btn btn-success btn-lg" data-bs-toggle="modal" data-bs-target="#reservationModal">
+                                <i class="fas fa-plus"></i> Reserve Parking Spot
+                            </button>
+                        </div>
+                        
+                        <div class="alert alert-info">
+                            <h6><i class="fas fa-info-circle"></i> Reservation Benefits</h6>
+                            <ul class="mb-0 small">
+                                <li>Guaranteed parking spot</li>
+                                <li>Time-based pricing</li>
+                                <li>Easy payment processing</li>
+                                <li>Real-time availability checking</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Request Status Card -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-secondary text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-info-circle"></i> Request Status
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="me-3">
+                            <span id="request-status-badge" class="badge bg-secondary">No Request</span>
+                            </div>
+                        <div>
+                            <div id="request-status-text" class="text-muted">You have no pending or active requests.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-2">
+        <div class="col-12 mb-4">
+            <div class="card">
+                <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="fas fa-ticket-alt"></i> My reservations</h5>
+                    <button class="btn btn-sm btn-light" type="button" onclick="loadReservations()"><i class="fas fa-sync-alt"></i> Refresh</button>
+                </div>
+                <div class="card-body">
+                    <form id="checkin-code-form" class="row g-2 align-items-end mb-4">
+                        <div class="col-md-8">
+                            <label class="form-label" for="checkin-code">Check in with reservation code</label>
+                            <input class="form-control" id="checkin-code" autocomplete="off" placeholder="Enter the code shown on your reservation" required>
+                        </div>
+                        <div class="col-md-4"><button class="btn btn-success w-100" type="submit"><i class="fas fa-qrcode"></i> Check in</button></div>
+                    </form>
+                    <div id="reservations-list"><p class="text-muted">Loading reservations...</p></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 mb-4">
+            <div class="card">
+                <div class="card-header"><h5 class="mb-0"><i class="fas fa-receipt"></i> Payment history</h5></div>
+                <div class="card-body" id="payment-history"><p class="text-muted">Loading payment history...</p></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Reservation Modal -->
+<div class="modal fade" id="reservationModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-calendar-plus"></i> Reserve Parking Spot
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="reservation-form">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="reservation-name" class="form-label">Full Name *</label>
+                                <input type="text" class="form-control" id="reservation-name" value="{{ session.client_name }}" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="reservation-plate" class="form-label">Number Plate *</label>
+                                <input type="text" class="form-control" id="reservation-plate" value="{{ session.client_number_plate }}" readonly>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="reservation-start" class="form-label">Start Time *</label>
+                                <input type="datetime-local" class="form-control" id="reservation-start" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="reservation-duration" class="form-label">Duration (Hours) *</label>
+                                <select class="form-select" id="reservation-duration" required>
+                                    <option value="">Select duration</option>
+                                    <option value="1">1 Hour</option>
+                                    <option value="2">2 Hours</option>
+                                    <option value="4">4 Hours</option>
+                                    <option value="8">8 Hours</option>
+                                    <option value="12">12 Hours</option>
+                                    <option value="24">24 Hours</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="alert alert-warning">
+                        <h6><i class="fas fa-exclamation-triangle"></i> Important</h6>
+                        <ul class="mb-0 small">
+                            <li>Reservations are subject to availability</li>
+                            <li>Payment is required to confirm reservation</li>
+                            <li>Rate: $5.00 per hour</li>
+                        </ul>
+                        <!-- Next Free Slot Timer for Full System -->
+                        <div id="price-section-timer" class="mt-2" style="display: none;">
+                            <div class="alert alert-danger text-center">
+                                <i class="fas fa-clock"></i>
+                                <strong>Next free slot at:</strong>
+                                <span id="price-timer-countdown" class="fw-bold text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="submit-reservation">
+                    <i class="fas fa-credit-card"></i> Proceed to Payment
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Payment Modal -->
+<div class="modal fade" id="paymentModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-credit-card"></i> Payment
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="payment-details">
+                    <div class="text-center">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Processing...</span>
+                        </div>
+                        <p class="mt-2">Processing payment...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    let currentReservationData = null;
+    
+    // Request initial availability update
+    console.log('Requesting initial availability update...');
+    socket.emit('request_availability_update');
+    // Initialize request status
+    function setRequestStatus(status, message) {
+        const badge = document.getElementById('request-status-badge');
+        const text = document.getElementById('request-status-text');
+        if (!badge || !text) return;
+        badge.className = 'badge';
+        if (status === 'accepted') {
+            badge.classList.add('bg-success');
+            badge.textContent = 'Accepted';
+        } else if (status === 'rejected') {
+            badge.classList.add('bg-danger');
+            badge.textContent = 'Rejected';
+        } else if (status === 'cancelled') {
+            badge.classList.add('bg-warning');
+            badge.textContent = 'Cancelled';
+        } else if (status === 'pending') {
+            badge.classList.add('bg-info');
+            badge.textContent = 'Pending';
+        } else {
+            badge.classList.add('bg-secondary');
+            badge.textContent = 'No Request';
+        }
+        text.textContent = message || '';
+    }
+    
+    // Global variables for timers
+    let nextSlotTimer = null;
+    let priceTimer = null;
+    let nextAvailableTime = null;
+    
+    // Utility function to parse time string (already in local time)
+    function convertToLocalTime(timeString) {
+        if (!timeString) return null;
+        // Time is already stored in local time, so just parse it directly
+        return new Date(timeString);
+    }
+    
+    // Utility function to format time for display
+    function formatLocalTime(date) {
+        if (!date) return '';
+        return date.toLocaleString('en-US', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+            hour12: false
+        });
+    }
+    
+    // Notification functions
+    function showNotification(title, message, type = 'info') {
+        const notificationSection = document.getElementById('notifications-section');
+        const notificationCard = document.getElementById('notification-card');
+        const notificationTitle = document.getElementById('notification-title');
+        const notificationMessage = document.getElementById('notification-message');
+        const notificationIcon = document.getElementById('notification-icon');
+        
+        // Set notification content
+        notificationTitle.textContent = title;
+        notificationMessage.textContent = message;
+        
+        // Set notification type styling
+        notificationCard.className = 'card';
+        notificationIcon.innerHTML = '';
+        
+        if (type === 'success') {
+            notificationCard.classList.add('border-success');
+            notificationIcon.innerHTML = '<i class="fas fa-check-circle text-success fs-4"></i>';
+        } else if (type === 'error') {
+            notificationCard.classList.add('border-danger');
+            notificationIcon.innerHTML = '<i class="fas fa-times-circle text-danger fs-4"></i>';
+        } else if (type === 'warning') {
+            notificationCard.classList.add('border-warning');
+            notificationIcon.innerHTML = '<i class="fas fa-exclamation-triangle text-warning fs-4"></i>';
+        } else {
+            notificationCard.classList.add('border-primary');
+            notificationIcon.innerHTML = '<i class="fas fa-bell text-primary fs-4"></i>';
+        }
+        
+        // Show notification
+        notificationSection.style.display = 'block';
+        
+        // Auto-hide after 10 seconds
+        setTimeout(() => {
+            hideNotification();
+        }, 10000);
+    }
+    
+    function hideNotification() {
+        const notificationSection = document.getElementById('notifications-section');
+        notificationSection.style.display = 'none';
+    }
+    
+    // Remove reservation list fetchers since we only show status now
+    
+    function escapeHtml(value) {
+        return String(value ?? '').replace(/[&<>"']/g, character => ({
+            '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+        }[character]));
+    }
+
+    function displayReservations(reservations, requests = []) {
+        const reservationsList = document.getElementById('reservations-list');
+        let html = '';
+        requests.filter(item => item.status === 'pending').forEach(item => {
+            html += `<div class="alert alert-info"><strong>Request #${item.request_id} pending review</strong><br>${escapeHtml(item.start_time)} · ${item.duration} hour(s)</div>`;
+        });
+        if (!reservations.length && !html) {
+            reservationsList.innerHTML = '<div class="text-center py-4 text-muted"><i class="fas fa-calendar-times fs-1 mb-3"></i><p>No reservations yet. Use Reserve Parking Spot to book.</p></div>';
+            return;
+        }
+        reservations.forEach(reservation => {
+            const id = Number(reservation.reservation_id);
+            const start = formatLocalTime(convertToLocalTime(reservation.start_time));
+            const end = formatLocalTime(convertToLocalTime(reservation.end_time));
+            const statusColor = reservation.status === 'active' ? 'success' : (reservation.status === 'completed' ? 'secondary' : 'warning');
+            const controls = reservation.status === 'active' ? `
+                <button class="btn btn-sm btn-success me-1" onclick="checkInReservation(${id})">Check in</button>
+                <button class="btn btn-sm btn-primary me-1" onclick="checkOutReservation(${id})">Check out</button>
+                ${reservation.checked_in_at ? '' : `<button class="btn btn-sm btn-outline-primary me-1" onclick="editReservation(${id}, '${escapeHtml(reservation.start_time)}', ${Number(reservation.duration)})">Modify</button><button class="btn btn-sm btn-outline-danger" onclick="cancelReservation(${id})">Cancel</button>`}` : '';
+            const code = reservation.reservation_code ? `<div class="mt-2"><strong>Check-in code:</strong> <code>${escapeHtml(reservation.reservation_code)}</code></div>` : '';
+            const amount = reservation.actual_amount !== null && reservation.actual_amount !== undefined ? `<div><strong>Fee:</strong> ${Number(reservation.actual_amount).toFixed(2)} (payment pending)</div>` : '';
+            const feedback = reservation.status === 'completed' && !reservation.feedback_rating ? `<button class="btn btn-sm btn-outline-secondary mt-2" onclick="leaveFeedback(${id})">Rate your visit</button>` : '';
+            html += `<div class="border rounded p-3 mb-3"><div class="d-flex justify-content-between flex-wrap gap-2"><strong>Reservation #${id} · Slot ${escapeHtml(reservation.slot_id || 'pending')}</strong><span class="badge bg-${statusColor}">${escapeHtml(reservation.status.toUpperCase())}</span></div><div class="mt-2">${escapeHtml(start)} – ${escapeHtml(end)} · ${Number(reservation.duration)} hour(s)</div>${code}${reservation.checked_in_at ? `<div class="text-success small mt-1">Checked in: ${escapeHtml(reservation.checked_in_at)}</div>` : ''}${amount}<div class="mt-3">${controls}</div>${feedback}</div>`;
+        });
+        reservationsList.innerHTML = html;
+    }
+
+    async function loadReservations() {
+        try {
+            const response = await fetch('/api/client/history');
+            if (!response.ok) throw new Error('Unable to load account history.');
+            const data = await response.json();
+            displayReservations(data.reservations || [], data.requests || []);
+            scheduleReservationReminders(data.reservations || []);
+            const payments = data.payments || [];
+            document.getElementById('payment-history').innerHTML = payments.length ? payments.map(payment =>
+                `<div class="d-flex justify-content-between border-bottom py-2"><span>${escapeHtml(payment.payment_method)} · ${escapeHtml(payment.created_at)}</span><span>${Number(payment.amount).toFixed(2)} · ${escapeHtml(payment.status)}</span></div>`
+            ).join('') : '<p class="text-muted mb-0">No payment records yet.</p>';
+        } catch (error) {
+            document.getElementById('reservations-list').textContent = error.message;
+            document.getElementById('payment-history').textContent = 'Payment history unavailable.';
+        }
+    }
+
+    async function reservationAction(url, method = 'POST', body = {}) {
+        const response = await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error || 'The request could not be completed.');
+        return data;
+    }
+    async function checkInReservation(id) {
+        try { const data = await reservationAction(`/api/client/reservations/${id}/check-in`); showNotification('Checked in', data.message, 'success'); await loadReservations(); }
+        catch (error) { showNotification('Check-in unavailable', error.message, 'warning'); }
+    }
+    async function checkOutReservation(id) {
+        if (!confirm('Check out and release this parking space?')) return;
+        try { const data = await reservationAction(`/api/client/reservations/${id}/check-out`); showNotification('Parking session ended', `${data.message} Amount due: ${Number(data.amount_due).toFixed(2)}`, 'success'); await loadReservations(); }
+        catch (error) { showNotification('Check-out failed', error.message, 'error'); }
+    }
+    async function cancelReservation(id) {
+        if (!confirm('Cancel this reservation?')) return;
+        try { const data = await reservationAction(`/api/client/reservations/${id}/cancel`); showNotification('Reservation cancelled', data.message, 'success'); await loadReservations(); }
+        catch (error) { showNotification('Cancellation unavailable', error.message, 'warning'); }
+    }
+    async function editReservation(id, currentStart, currentDuration) {
+        const startTime = prompt('New start time (YYYY-MM-DDTHH:mm)', currentStart.slice(0, 16));
+        if (!startTime) return;
+        const duration = prompt('Duration in whole hours (1-24)', currentDuration);
+        if (!duration) return;
+        try { const data = await reservationAction(`/api/client/reservations/${id}`, 'PUT', { start_time: startTime, duration }); showNotification('Reservation updated', data.message, 'success'); await loadReservations(); }
+        catch (error) { showNotification('Update unavailable', error.message, 'warning'); }
+    }
+    async function leaveFeedback(id) {
+        const rating = prompt('Rate this visit from 1 to 5');
+        if (!rating) return;
+        const comment = prompt('Optional feedback', '') || '';
+        try { const data = await reservationAction(`/api/client/reservations/${id}/feedback`, 'POST', { rating, comment }); showNotification('Feedback saved', data.message, 'success'); await loadReservations(); }
+        catch (error) { showNotification('Feedback not saved', error.message, 'warning'); }
+    }
+
+    const scheduledReminders = new Set();
+    function scheduleReservationReminders(reservations) {
+        reservations.filter(item => item.status === 'active').forEach(item => {
+            [['start', item.start_time], ['expiry', item.end_time]].forEach(([kind, value]) => {
+                const key = `${item.reservation_id}:${kind}`;
+                if (scheduledReminders.has(key) || sessionStorage.getItem(`parking-reminder:${key}`)) return;
+                const target = new Date(value).getTime() - 15 * 60 * 1000;
+                const delay = target - Date.now();
+                if (delay < -60000) return;
+                scheduledReminders.add(key);
+                setTimeout(() => {
+                    sessionStorage.setItem(`parking-reminder:${key}`, '1');
+                    showNotification(kind === 'start' ? 'Reservation reminder' : 'Parking time ending soon', kind === 'start' ? `Reservation #${item.reservation_id} starts in 15 minutes.` : `Reservation #${item.reservation_id} expires in 15 minutes.`, 'warning');
+                }, Math.max(0, delay));
+            });
+        });
+    }
+    
+    // Update availability display
+    function updateAvailabilityDisplay(data) {
+        console.log('Received availability update:', data);
+        
+        // Hide loading spinner
+        document.querySelector('.loading-spinner').classList.remove('show');
+        document.getElementById('status-content').style.display = 'block';
+        
+        // Update status indicator and text
+        const statusIndicator = document.getElementById('status-indicator');
+        const statusText = document.getElementById('status-text');
+        
+        if (data.available) {
+            statusIndicator.className = 'status-indicator status-available';
+            statusText.textContent = 'Parking Available';
+            statusText.className = 'd-inline-block mb-0 text-success';
+        } else {
+            statusIndicator.className = 'status-indicator status-full';
+            statusText.textContent = 'Parking Full';
+            statusText.className = 'd-inline-block mb-0 text-danger';
+        }
+        
+        // Update occupancy rate
+        document.getElementById('occupancy-rate').textContent = data.occupancy_rate;
+        
+        // Update progress bar
+        const progressBar = document.getElementById('occupancy-bar');
+        progressBar.style.width = data.occupancy_rate + '%';
+        progressBar.className = 'progress-bar';
+        
+        if (data.occupancy_rate < 50) {
+            progressBar.classList.add('bg-success');
+        } else if (data.occupancy_rate < 80) {
+            progressBar.classList.add('bg-warning');
+        } else {
+            progressBar.classList.add('bg-danger');
+        }
+        
+        // Handle next available time - only update if we don't have one or if it's different
+        if (data.next_available_time) {
+            const newNextTime = convertToLocalTime(data.next_available_time);
+            
+            // Only update if we don't have a timer running or if the time is significantly different
+            if (!nextAvailableTime || Math.abs(newNextTime - nextAvailableTime) > 60000) { // 1 minute difference
+                nextAvailableTime = newNextTime;
+                showNextSlotTimer();
+                updateReservationStartTime();
+            }
+        } else {
+            // Only hide timer if parking is actually available (not just missing data)
+            if (data.available) {
+                hideNextSlotTimer();
+            }
+        }
+    }
+    
+    // Show next slot timer
+    function showNextSlotTimer() {
+        console.log('Showing next slot timer, nextAvailableTime:', nextAvailableTime);
+        const nextSlotElement = document.getElementById('next-slot-timer');
+        const priceElement = document.getElementById('price-section-timer');
+        
+        if (nextSlotElement) {
+            nextSlotElement.style.display = 'block';
+        } else {
+            console.log('next-slot-timer element not found');
+        }
+        
+        if (priceElement) {
+            priceElement.style.display = 'block';
+        } else {
+            console.log('price-section-timer element not found');
+        }
+        
+        startTimers();
+    }
+    
+    // Hide next slot timer
+    function hideNextSlotTimer() {
+        console.log('Hiding next slot timer');
+        const nextSlotElement = document.getElementById('next-slot-timer');
+        const priceElement = document.getElementById('price-section-timer');
+        
+        if (nextSlotElement) {
+            nextSlotElement.style.display = 'none';
+        }
+        
+        if (priceElement) {
+            priceElement.style.display = 'none';
+        }
+        
+        stopTimers();
+    }
+    
+    // Start countdown timers
+    function startTimers() {
+        console.log('Starting timers, nextAvailableTime:', nextAvailableTime);
+        
+        if (nextSlotTimer) {
+            clearInterval(nextSlotTimer);
+            console.log('Cleared existing nextSlotTimer');
+        }
+        if (priceTimer) {
+            clearInterval(priceTimer);
+            console.log('Cleared existing priceTimer');
+        }
+        
+        nextSlotTimer = setInterval(updateNextSlotCountdown, 1000);
+        priceTimer = setInterval(updatePriceTimer, 1000);
+        
+        console.log('Timers started, nextSlotTimer:', nextSlotTimer, 'priceTimer:', priceTimer);
+        
+        // Initial update
+        updateNextSlotCountdown();
+        updatePriceTimer();
+    }
+    
+    // Stop countdown timers
+    function stopTimers() {
+        console.log('Stopping timers, nextSlotTimer:', nextSlotTimer, 'priceTimer:', priceTimer);
+        
+        if (nextSlotTimer) {
+            clearInterval(nextSlotTimer);
+            nextSlotTimer = null;
+            console.log('Stopped nextSlotTimer');
+        }
+        if (priceTimer) {
+            clearInterval(priceTimer);
+            priceTimer = null;
+            console.log('Stopped priceTimer');
+        }
+    }
+    
+    // Update next slot countdown
+    function updateNextSlotCountdown() {
+        if (!nextAvailableTime) {
+            console.log('No nextAvailableTime set, skipping countdown update');
+            return;
+        }
+        
+        const now = new Date();
+        const timeLeft = nextAvailableTime - now;
+        
+        if (timeLeft <= 0) {
+            document.getElementById('next-slot-countdown').textContent = 'Available now!';
+            hideNextSlotTimer();
+            return;
+        }
+        
+        const hours = Math.floor(timeLeft / (1000 * 60 * 60));
+        const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+        
+        let timeString = '';
+        if (hours > 0) timeString += `${hours}h `;
+        if (minutes > 0) timeString += `${minutes}m `;
+        timeString += `${seconds}s`;
+        
+        const countdownElement = document.getElementById('next-slot-countdown');
+        if (countdownElement) {
+            countdownElement.textContent = timeString;
+        } else {
+            console.log('Countdown element not found');
+        }
+    }
+    
+    // Update price section timer
+    function updatePriceTimer() {
+        if (!nextAvailableTime) {
+            console.log('No nextAvailableTime set for price timer, skipping update');
+            return;
+        }
+        
+        const now = new Date();
+        const timeLeft = nextAvailableTime - now;
+        
+        if (timeLeft <= 0) {
+            const priceElement = document.getElementById('price-timer-countdown');
+            if (priceElement) {
+                priceElement.textContent = 'Available now!';
+            }
+            return;
+        }
+        
+        const hours = Math.floor(timeLeft / (1000 * 60 * 60));
+        const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+        
+        let timeString = '';
+        if (hours > 0) timeString += `${hours}h `;
+        if (minutes > 0) timeString += `${minutes}m `;
+        timeString += `${seconds}s`;
+        
+        const priceElement = document.getElementById('price-timer-countdown');
+        if (priceElement) {
+            priceElement.textContent = timeString;
+        } else {
+            console.log('Price timer element not found');
+        }
+    }
+    
+    // Update reservation start time to next available
+    function updateReservationStartTime() {
+        if (!nextAvailableTime) return;
+        
+        const startTimeInput = document.getElementById('reservation-start');
+        const nextTimeString = nextAvailableTime.toISOString().slice(0, 16);
+        startTimeInput.value = nextTimeString;
+        startTimeInput.min = nextTimeString;
+    }
+    
+    // Set minimum datetime to current time
+    document.getElementById('reservation-start').min = new Date().toISOString().slice(0, 16);
+    
+    // Handle reservation submission
+    document.getElementById('submit-reservation').addEventListener('click', function() {
+        const form = document.getElementById('reservation-form');
+        const formData = new FormData(form);
+        
+        // Get the start time in local PC time (no timezone conversion)
+        const startTimeInput = document.getElementById('reservation-start').value; // e.g., 2025-10-13T08:00
+        
+        const reservationData = {
+            name: document.getElementById('reservation-name').value,
+            number_plate: document.getElementById('reservation-plate').value,
+            start_time: startTimeInput, // Send as local naive time
+            duration: document.getElementById('reservation-duration').value
+        };
+        
+        // Validate form
+        if (!reservationData.name || !reservationData.start_time || !reservationData.duration) {
+            alert('Please fill in all required fields.');
+            return;
+        }
+        
+        // Submit reservation request
+        fetch('/api/client/reserve', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(reservationData)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                currentReservationData = {
+                    ...reservationData,
+                    request_id: data.request_id
+                };
+                // Update request status to Pending when request is sent
+                setRequestStatus('pending', 'Your request has been sent. Awaiting review');
+                showNotification('Request Sent', 'Your request has been sent. Awaiting review', 'info');
+                
+                // Close reservation modal
+                bootstrap.Modal.getInstance(document.getElementById('reservationModal')).hide();
+                
+                // Show payment modal
+                showPaymentModal();
+            } else {
+                alert(data.error || 'Failed to create reservation request');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred while creating the reservation request');
+        });
+    });
+    
+    // Show payment modal
+    function showPaymentModal() {
+        const duration = parseInt(currentReservationData.duration);
+        const amount = duration * 5.0; // $5 per hour
+        
+        document.getElementById('payment-details').innerHTML = `
+            <div class="text-center mb-4">
+                <h5>Reservation Summary</h5>
+                <div class="card">
+                    <div class="card-body">
+                        <p><strong>Name:</strong> ${escapeHtml(currentReservationData.name)}</p>
+                        <p><strong>Number Plate:</strong> ${escapeHtml(currentReservationData.number_plate)}</p>
+                        <p><strong>Start Time:</strong> ${formatLocalTime(new Date(currentReservationData.start_time))}</p>
+                        <p><strong>Duration:</strong> ${duration} hour(s)</p>
+                        <hr>
+                        <h5 class="text-primary">Estimated amount: $${amount.toFixed(2)}</h5>
+                        <small class="text-muted">Online payment is not enabled until a provider is configured.</small>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="d-grid gap-2">
+                <button class="btn btn-success btn-lg" onclick="processPayment('cash')">
+                    <i class="fas fa-money-bill"></i> Pay with Cash
+                </button>
+                <button class="btn btn-primary btn-lg" onclick="processPayment('card')">
+                    <i class="fas fa-credit-card"></i> Pay with Card
+                </button>
+                <button class="btn btn-outline-primary btn-lg" onclick="processPayment('mobile_money')">
+                    <i class="fas fa-mobile-alt"></i> Pay with Mobile Money
+                </button>
+            </div>
+        `;
+        
+        const paymentModal = new bootstrap.Modal(document.getElementById('paymentModal'));
+        paymentModal.show();
+    }
+    
+    // Process payment
+    function processPayment(method) {
+        fetch('/api/client/payment', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                request_id: currentReservationData.request_id,
+                payment_method: method
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                document.getElementById('payment-details').innerHTML = `
+                    <div class="text-center">
+                        <i class="fas fa-check-circle fa-3x text-success mb-3"></i>
+                        <h5 class="text-warning">Cash payment awaiting verification</h5>
+                        <p>${escapeHtml(data.message)}</p>
+                        <p><strong>Amount:</strong> ${Number(data.amount).toFixed(2)} · <strong>Request:</strong> ${currentReservationData.request_id}</p>
+                        <button class="btn btn-primary" onclick="closePaymentModal()">Close</button>
+                    </div>
+                `;
+            } else {
+                alert(data.error || 'Payment failed');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred during payment processing');
+        });
+    }
+    
+    // Close payment modal
+    function closePaymentModal() {
+        bootstrap.Modal.getInstance(document.getElementById('paymentModal')).hide();
+        // Refresh reservations list
+        loadReservations();
+    }
+    
+    // Handle socket events
+    socket.on('availability_update', updateAvailabilityDisplay);
+    
+    // Handle request status updates
+    function handleAccepted(data) {
+        console.log('Request accepted:', data);
+        // Filter to the logged-in client by number plate if provided
+        const myPlate = '{{ session.client_number_plate }}';
+        if (data.number_plate && myPlate && data.number_plate !== myPlate) {
+            return; // Not for this client
+        }
+        const startStr = data.start_time ? formatLocalTime(convertToLocalTime(data.start_time)) : '';
+        const endStr = data.end_time ? formatLocalTime(convertToLocalTime(data.end_time)) : '';
+        const message = startStr && endStr
+            ? `Your reservation at ${startStr} to ${endStr}`
+            : 'Your slot reservation is now active.';
+        showNotification('Your reservation has been accepted', message, 'success');
+        setRequestStatus('accepted', message);
+    }
+    socket.on('request_accepted', handleAccepted);
+    
+    function handleRejected(data) {
+        console.log('Request rejected:', data);
+        const myPlate = '{{ session.client_number_plate }}';
+        if (data.number_plate && myPlate && data.number_plate !== myPlate) {
+            return;
+        }
+    const msg = 'Your request has been denied. Money will be reversed';
+    showNotification('Request Denied', msg, 'error');
+    setRequestStatus('rejected', msg);
+    }
+    socket.on('request_rejected', handleRejected);
+
+    function handleCancelled(data) {
+        console.log('Reservation cancelled:', data);
+        const myPlate = '{{ session.client_number_plate }}';
+        if (data.number_plate && myPlate && data.number_plate !== myPlate) {
+            return;
+        }
+    const cancelMsg = 'Your reservation has been cancelled. Wait for your cash back. Thank you!';
+    showNotification('Reservation Cancelled', cancelMsg, 'warning');
+    setRequestStatus('cancelled', cancelMsg);
+    }
+    socket.on('reservation_cancelled', handleCancelled);
+
+    // Poll account-scoped history so one client never reads another client's requests.
+    let lastObservedRequestState = '';
+    async function pollRequestStatus() {
+        try {
+            const response = await fetch('/api/client/history');
+            if (!response.ok) return;
+            const data = await response.json();
+            const mine = data.requests || [];
+            if (!mine.length) {
+                setRequestStatus(null, 'You have no pending or active requests.');
+                return;
+            }
+            mine.sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
+            const latest = mine[0];
+            const currentState = `${latest.request_id}:${latest.status}`;
+            if (lastObservedRequestState && currentState !== lastObservedRequestState) {
+                if (latest.status === 'accepted') showNotification('Reservation confirmed', `Request #${latest.request_id} was accepted.`, 'success');
+                if (latest.status === 'rejected') showNotification('Request declined', `Request #${latest.request_id} was declined.`, 'error');
+            }
+            lastObservedRequestState = currentState;
+            scheduleReservationReminders(data.reservations || []);
+            if (latest.status === 'pending') {
+                setRequestStatus('pending', `Your request has been sent (Request #${latest.request_id}). Awaiting review.`);
+                return;
+            }
+            if (latest.status === 'rejected') {
+                setRequestStatus('rejected', `Request #${latest.request_id} was declined.`);
+                return;
+            }
+            if (latest.status === 'accepted') {
+                const reservation = (data.reservations || []).find(item => item.request_id === latest.request_id);
+                const message = reservation ? `Confirmed: Slot ${reservation.slot_id}, ${formatLocalTime(convertToLocalTime(reservation.start_time))}.` : 'Your reservation has been accepted.';
+                setRequestStatus('accepted', message);
+                return;
+            }
+            setRequestStatus(latest.status, `Request #${latest.request_id}: ${latest.status}.`);
+        } catch(e) { console.error('Unable to refresh booking status', e); }
+    }
+    setInterval(pollRequestStatus, 10000);
+    pollRequestStatus();
+
+    document.getElementById('checkin-code-form').addEventListener('submit', async event => {
+        event.preventDefault();
+        try {
+            const data = await reservationAction('/api/client/check-in', 'POST', {
+                reservation_code: document.getElementById('checkin-code').value
+            });
+            showNotification('Checked in', data.message, 'success');
+            document.getElementById('checkin-code').value = '';
+            await loadReservations();
+        } catch (error) {
+            showNotification('Check-in unavailable', error.message, 'warning');
+        }
+    });
+    
+    // Request updates every 10 seconds
+    setInterval(() => {
+        console.log('Requesting periodic availability update...');
+        socket.emit('request_availability_update');
+    }, 10000);
+    
+    // Fallback: Also try API call every 15 seconds
+        setInterval(() => {
+            console.log('Making fallback API call...');
+            fetch('/api/client/availability')
+                .then(response => response.json())
+                .then(data => {
+                    console.log('API response:', data);
+                    if (data.success !== false) {
+                        updateAvailabilityDisplay(data);
+                    }
+                })
+                .catch(error => {
+                    console.error('API call failed:', error);
+                });
+        }, 15000);
+    
+    // Load initial data
+    loadReservations();
+</script>
+{% endblock %}

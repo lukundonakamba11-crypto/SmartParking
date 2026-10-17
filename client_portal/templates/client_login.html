@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+
+{% block title %}Client Login - Smart Parking System{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-6 col-md-8">
+            <div class="card">
+                <div class="card-body p-5">
+                    <div class="text-center mb-4">
+                        <h2 class="fw-bold mb-3">
+                            <i class="fas fa-sign-in-alt text-primary"></i> Client Login
+                        </h2>
+                        <p class="text-muted">Sign in to manage your parking reservations</p>
+                    </div>
+
+                    <form method="POST">
+                        <div class="mb-3">
+                            <label for="number_plate" class="form-label">
+                                <i class="fas fa-car"></i> Number Plate
+                            </label>
+                            <input type="text" 
+                                   class="form-control" 
+                                   id="number_plate" 
+                                   name="number_plate" 
+                                   placeholder="Enter your vehicle number plate"
+                                   required
+                                   style="text-transform: uppercase;">
+                            <div class="form-text">Use the vehicle plate registered to your account.</div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="password" class="form-label">
+                                <i class="fas fa-lock"></i> Password
+                            </label>
+                            <input type="password" 
+                                   class="form-control" 
+                                   id="password" 
+                                   name="password" 
+                                   placeholder="Enter your password"
+                                   required>
+                        </div>
+
+                        <div class="text-end mb-4">
+                            <a href="{{ url_for('forgot_password') }}">Forgot password?</a>
+                        </div>
+
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-sign-in-alt"></i> Login
+                            </button>
+                        </div>
+                    </form>
+
+                    <div class="text-center mt-4">
+                        <p class="text-muted">
+                            Don't have an account? 
+                            <a href="{{ url_for('client_register') }}" class="text-decoration-none">
+                                Create one here
+                            </a>
+                        </p>
+                        <p class="text-muted">
+                            <a href="{{ url_for('free_parking') }}" class="text-decoration-none">
+                                <i class="fas fa-arrow-left"></i> Back to Free Parking
+                            </a>
+                        </p>
+                    </div>
+
+                    <div class="alert alert-info mt-4">
+                        <p class="mb-0 small">Existing accounts can continue using their old plate password once; you will then be able to set a new password from Profile.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Auto-format number plate input
+    document.getElementById('number_plate').addEventListener('input', function(e) {
+        e.target.value = e.target.value.toUpperCase();
+    });
+</script>
+{% endblock %}

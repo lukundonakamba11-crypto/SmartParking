@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System Controls - Parking System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+
+        .header-bar {
+            background: white;
+            padding: 15px 20px;
+            border-radius: 15px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .control-card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            margin-bottom: 20px;
+        }
+
+        .btn-control {
+            padding: 10px 20px;
+            margin: 5px;
+            border-radius: 10px;
+            border: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-start {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+        }
+
+        .btn-stop {
+            background: linear-gradient(135deg, #dc3545, #e74c3c);
+            color: white;
+        }
+
+        .btn-start:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(40, 167, 69, 0.4);
+        }
+
+        .btn-stop:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(220, 53, 69, 0.4);
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
+        .status-running {
+            background-color: #28a745;
+            animation: pulse 2s infinite;
+        }
+
+        .status-stopped {
+            background-color: #dc3545;
+        }
+
+        @keyframes pulse {
+            0% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.5;
+            }
+
+            100% {
+                opacity: 1;
+            }
+        }
+
+        .log-container {
+            background: #1e1e1e;
+            color: #f8f9fa;
+            border-radius: 10px;
+            padding: 15px;
+            height: 300px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+        }
+
+        .log-entry {
+            margin-bottom: 5px;
+            padding: 2px 0;
+        }
+
+        .log-timestamp {
+            color: #6c757d;
+        }
+
+        .log-info {
+            color: #17a2b8;
+        }
+
+        .log-success {
+            color: #28a745;
+        }
+
+        .log-error {
+            color: #dc3545;
+        }
+
+        .live-view {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            text-align: center;
+        }
+
+        .live-frame {
+            max-width: 100%;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .back-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 10px;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+
+        .back-btn:hover {
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container-fluid">
+        <div class="header-bar">
+            <h2><i class="fas fa-cogs"></i> System Controls</h2>
+            <a href="/dashboard" class="back-btn">
+                <i class="fas fa-arrow-left"></i> Back to Dashboard
+            </a>
+        </div>
+
+        <div class="row">
+            <!-- Control Panel -->
+            <div class="col-md-8">
+                <div class="control-card">
+                    <h4><i class="fas fa-play-circle"></i> Process Controls</h4>
+                    <p class="text-muted">Start and stop Python scripts for ESP32-CAM management</p>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6><span class="status-indicator" id="live-status"></span>Live Stream Viewer</h6>
+                            <button class="btn-control btn-start" onclick="startLive()">
+                                <i class="fas fa-play"></i> Start Live Stream
+                            </button>
+                            <button class="btn-control btn-stop" onclick="stopLive()">
+                                <i class="fas fa-stop"></i> Stop Live Stream
+                            </button>
+                        </div>
+
+                        <div class="col-md-6">
+                            <h6><span class="status-indicator" id="calibration-status"></span>Slot Calibration</h6>
+                            <button class="btn-control btn-start" onclick="startCalibration()">
+                                <i class="fas fa-play"></i> Start Calibration
+                            </button>
+                            <button class="btn-control btn-stop" onclick="stopCalibration()">
+                                <i class="fas fa-stop"></i> Stop Calibration
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="row mt-3">
+                        <div class="col-md-6">
+                            <h6><span class="status-indicator" id="detection-status"></span>Parking Detection</h6>
+                            <button class="btn-control btn-start" onclick="startDetection()">
+                                <i class="fas fa-play"></i> Start Detection
+                            </button>
+                            <button class="btn-control btn-stop" onclick="stopDetection()">
+                                <i class="fas fa-stop"></i> Stop Detection
+                            </button>
+                        </div>
+
+                        <div class="col-md-6">
+                            <h6><span class="status-indicator" id="viewer-status"></span>Stream Viewer</h6>
+                            <button class="btn-control btn-start" onclick="startViewer()">
+                                <i class="fas fa-play"></i> Start Viewer
+                            </button>
+                            <button class="btn-control btn-stop" onclick="stopViewer()">
+                                <i class="fas fa-stop"></i> Stop Viewer
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="control-card">
+                    <h4><i class="fas fa-terminal"></i> System Logs</h4>
+                    <div class="log-container" id="log-container">
+                        <div class="log-entry">
+                            <span class="log-timestamp">[System]</span>
+                            <span class="log-info">Control panel initialized</span>
+                        </div>
+                    </div>
+                    <button class="btn btn-outline-secondary btn-sm mt-2" onclick="clearLogs()">
+                        <i class="fas fa-trash"></i> Clear Logs
+                    </button>
+                </div>
+            </div>
+
+            <!-- Live View -->
+            <div class="col-md-4">
+                <div class="live-view">
+                    <h4><i class="fas fa-video"></i> Live Stream</h4>
+                    <div id="live-frame-container">
+                        <img id="live-frame" class="live-frame" style="display: none;" alt="Live Stream">
+                        <div id="no-stream" class="text-muted">
+                            <i class="fas fa-video-slash fa-3x mb-3"></i>
+                            <p>No live stream available</p>
+                            <p class="small">Start the live stream to view ESP32-CAM feed</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Socket.IO connection
+        const socket = io();
+
+        // Logging function
+        function log(message, type = 'info') {
+            const logContainer = document.getElementById('log-container');
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = document.createElement('div');
+            logEntry.className = 'log-entry';
+            logEntry.innerHTML = `
+                <span class="log-timestamp">[${timestamp}]</span>
+                <span class="log-${type}">${message}</span>
+            `;
+            logContainer.appendChild(logEntry);
+            logContainer.scrollTop = logContainer.scrollHeight;
+        }
+
+        // Clear logs
+        function clearLogs() {
+            document.getElementById('log-container').innerHTML = '';
+        }
+
+        // Update status indicators
+        function updateStatus(elementId, running) {
+            const indicator = document.getElementById(elementId);
+            if (running) {
+                indicator.className = 'status-indicator status-running';
+            } else {
+                indicator.className = 'status-indicator status-stopped';
+            }
+        }
+
+        // Control functions
+        function startLive() {
+            socket.emit('start_live');
+            log('Starting live stream...', 'info');
+        }
+
+        function stopLive() {
+            socket.emit('stop_live');
+            log('Stopping live stream...', 'info');
+        }
+
+        function startCalibration() {
+            socket.emit('start_calibration');
+            log('Starting calibration...', 'info');
+        }
+
+        function stopCalibration() {
+            socket.emit('stop_calibration');
+            log('Stopping calibration...', 'info');
+        }
+
+        function startDetection() {
+            socket.emit('start_detection');
+            log('Starting detection...', 'info');
+        }
+
+        function stopDetection() {
+            socket.emit('stop_detection');
+            log('Stopping detection...', 'info');
+        }
+
+        function startViewer() {
+            socket.emit('start_viewer');
+            log('Starting viewer...', 'info');
+        }
+
+        function stopViewer() {
+            socket.emit('stop_viewer');
+            log('Stopping viewer...', 'info');
+        }
+
+        // Socket.IO event handlers
+        socket.on('connect', function () {
+            log('Connected to server', 'success');
+        });
+
+        socket.on('disconnect', function () {
+            log('Disconnected from server', 'error');
+        });
+
+        socket.on('live_status', function (status) {
+            updateStatus('live-status', status.running);
+            log(`Live stream ${status.running ? 'started' : 'stopped'}`, status.running ? 'success' : 'info');
+        });
+
+        socket.on('calibration_status', function (status) {
+            updateStatus('calibration-status', status.running);
+            log(`Calibration ${status.running ? 'started' : 'stopped'}`, status.running ? 'success' : 'info');
+        });
+
+        socket.on('detection_status', function (status) {
+            updateStatus('detection-status', status.running);
+            log(`Detection ${status.running ? 'started' : 'stopped'}`, status.running ? 'success' : 'info');
+        });
+
+        socket.on('viewer_status', function (status) {
+            updateStatus('viewer-status', status.running);
+            log(`Viewer ${status.running ? 'started' : 'stopped'}`, status.running ? 'success' : 'info');
+        });
+
+        socket.on('live_frame', function (data) {
+            const frameImg = document.getElementById('live-frame');
+            const noStream = document.getElementById('no-stream');
+
+            if (data.frame) {
+                frameImg.src = data.frame;
+                frameImg.style.display = 'block';
+                noStream.style.display = 'none';
+            } else {
+                frameImg.style.display = 'none';
+                noStream.style.display = 'block';
+            }
+        });
+
+        socket.on('calibration_saved', function (data) {
+            if (data.ok) {
+                log('Calibration saved successfully', 'success');
+            } else {
+                log(`Calibration save failed: ${data.error}`, 'error');
+            }
+        });
+
+        socket.on('calibration_click', function (data) {
+            log(`Calibration click: ${data.x}, ${data.y}`, 'info');
+        });
+
+        // Initialize status indicators
+        updateStatus('live-status', false);
+        updateStatus('calibration-status', false);
+        updateStatus('detection-status', false);
+        updateStatus('viewer-status', false);
+    </script>
+</body>
+
+</html>

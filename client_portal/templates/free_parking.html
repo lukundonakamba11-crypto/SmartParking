@@ -1,0 +1,271 @@
+{% extends "base.html" %}
+
+{% block title %}Free Parking - Smart Parking System{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <!-- Header -->
+            <div class="text-center mb-5">
+                <h1 class="display-4 fw-bold text-white mb-3">
+                    <i class="fas fa-parking"></i> Smart Parking System
+                </h1>
+                <p class="lead text-white-50">Real-time parking availability</p>
+            </div>
+
+            <!-- Parking Status Card -->
+            <div class="card mb-4">
+                <div class="card-body text-center p-5">
+                    <div id="parking-status">
+                        <div class="loading-spinner show">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                            <p class="mt-2">Loading parking status...</p>
+                        </div>
+                        
+                        <div id="status-content" style="display: none;">
+                            <div class="mb-4">
+                                <span id="status-indicator" class="status-indicator"></span>
+                                <h2 id="status-text" class="d-inline-block mb-0"></h2>
+                            </div>
+                            
+                            <div class="row text-center">
+                                <div class="col-md-4">
+                                    <div class="p-3">
+                                        <h3 id="free-slots" class="text-success fw-bold">-</h3>
+                                        <p class="text-muted mb-0">Free Slots</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="p-3">
+                                        <h3 id="occupied-slots" class="text-warning fw-bold">-</h3>
+                                        <p class="text-muted mb-0">Occupied</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="p-3">
+                                        <h3 id="total-slots" class="text-primary fw-bold">-</h3>
+                                        <p class="text-muted mb-0">Total Slots</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="mt-4">
+                                <div class="progress" style="height: 20px;">
+                                    <div id="occupancy-bar" class="progress-bar" role="progressbar" style="width: 0%"></div>
+                                </div>
+                                <small class="text-muted mt-2 d-block">
+                                    Occupancy: <span id="occupancy-rate">0</span>%
+                                </small>
+                            </div>
+                            
+                            <div class="mt-4">
+                                <small class="text-muted">
+                                    Last updated: <span id="last-updated">-</span>
+                                </small>
+                            </div>
+
+                            <div class="card mt-4 bg-white border-0 shadow-sm">
+                                <div class="card-body text-start">
+                                    <h5 class="fw-bold mb-3">AI Slot Predictions</h5>
+                                    <p class="text-muted mb-4">Based on current occupancy patterns, these slots are most likely to be used or free.</p>
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <div class="p-3 bg-light rounded h-100">
+                                                <h6 class="mb-2">Most Used Slots</h6>
+                                                <p id="predicted-most-used" class="mb-0 text-dark">Loading predictions...</p>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <div class="p-3 bg-light rounded h-100">
+                                                <h6 class="mb-2">Most Free Slots</h6>
+                                                <p id="predicted-most-free" class="mb-0 text-dark">Loading predictions...</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Call to Action -->
+            <div class="card">
+                <div class="card-body text-center p-5">
+                    <h3 class="mb-4">Want to Reserve a Parking Spot?</h3>
+                    <p class="text-muted mb-4">
+                        Create an account to reserve parking spots in advance and enjoy these benefits:
+                    </p>
+                    
+                    <div class="row mb-4">
+                        <div class="col-6 col-lg-3">
+                            <div class="p-3">
+                                <i class="fas fa-clock fa-2x text-primary mb-3"></i>
+                                <h5>Time Savings</h5>
+                                <p class="text-muted small">Reserve in advance and avoid searching for parking</p>
+                            </div>
+                        </div>
+                        <div class="col-6 col-lg-3">
+                            <div class="p-3">
+                                <i class="fas fa-shield-alt fa-2x text-success mb-3"></i>
+                                <h5>Guaranteed Spot</h5>
+                                <p class="text-muted small">Your spot is reserved and waiting for you</p>
+                            </div>
+                        </div>
+                        <div class="col-6 col-lg-3">
+                            <div class="p-3">
+                                <i class="fas fa-mobile-alt fa-2x text-info mb-3"></i>
+                                <h5>Easy Management</h5>
+                                <p class="text-muted small">Manage your reservations from anywhere</p>
+                            </div>
+                        </div>
+                        <div class="col-6 col-lg-3">
+                            <div class="p-3">
+                                <i class="fas fa-video fa-2x text-danger mb-3"></i>
+                                <h5>24/7 Security Surveillance</h5>
+                                <p class="text-muted small">Continuous monitoring for enhanced safety and peace of mind</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-center">
+                        <a href="{{ url_for('client_register') }}" class="btn btn-primary btn-lg me-md-2">
+                            <i class="fas fa-user-plus"></i> Create Account
+                        </a>
+                        <a href="{{ url_for('client_login') }}" class="btn btn-outline-primary btn-lg me-md-2">
+                            <i class="fas fa-sign-in-alt"></i> Login
+                        </a>
+                        <a href="http://localhost:5000/login" target="_blank" class="btn btn-secondary btn-lg">
+                            <i class="fas fa-user-shield"></i> Admin Login
+                        </a>
+                    </div>
+
+                    <!-- QR Code to open client portal -->
+                    <hr class="my-5" />
+                    <div class="row justify-content-center">
+                        <div class="col-md-8">
+                            <h5 class="mb-3">Scan to Reserve a Parking Spot</h5>
+                            <div class="d-flex flex-column align-items-center">
+                                <div id="qr-code" class="mb-3"></div>
+                                <small class="text-muted" id="qr-hint">Point your camera at the QR to open the portal. Your phone must reach this PC over the network or internet.</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    let availabilityData = null;
+    
+    // Request initial availability update
+    socket.emit('request_availability_update');
+    
+    // Update availability display
+    function updateAvailabilityDisplay(data) {
+        availabilityData = data;
+        
+        // Hide loading spinner
+        document.querySelector('.loading-spinner').classList.remove('show');
+        document.getElementById('status-content').style.display = 'block';
+        
+        // Update status indicator and text
+        const statusIndicator = document.getElementById('status-indicator');
+        const statusText = document.getElementById('status-text');
+        
+        if (data.available) {
+            statusIndicator.className = 'status-indicator status-available';
+            statusText.textContent = 'Parking Available';
+            statusText.className = 'd-inline-block mb-0 text-success';
+        } else {
+            statusIndicator.className = 'status-indicator status-full';
+            statusText.textContent = 'Parking Full';
+            statusText.className = 'd-inline-block mb-0 text-danger';
+        }
+        
+        // Update numbers
+        document.getElementById('free-slots').textContent = data.free_slots;
+        document.getElementById('occupied-slots').textContent = data.occupied_slots;
+        document.getElementById('total-slots').textContent = data.total_slots;
+        document.getElementById('occupancy-rate').textContent = data.occupancy_rate;
+        
+        // Update predictions
+        const predictions = data.slot_predictions || { most_used: [], most_free: [] };
+        document.getElementById('predicted-most-used').textContent = predictions.most_used.length ? predictions.most_used.join(', ') : 'N/A';
+        document.getElementById('predicted-most-free').textContent = predictions.most_free.length ? predictions.most_free.join(', ') : 'N/A';
+        
+        // Update progress bar
+        const progressBar = document.getElementById('occupancy-bar');
+        progressBar.style.width = data.occupancy_rate + '%';
+        progressBar.className = 'progress-bar';
+        
+        if (data.occupancy_rate < 50) {
+            progressBar.classList.add('bg-success');
+        } else if (data.occupancy_rate < 80) {
+            progressBar.classList.add('bg-warning');
+        } else {
+            progressBar.classList.add('bg-danger');
+        }
+        
+        // Update timestamp
+        const lastUpdated = new Date(data.timestamp);
+        document.getElementById('last-updated').textContent = lastUpdated.toLocaleTimeString();
+    }
+    
+    // Request updates every 10 seconds
+    setInterval(() => {
+        socket.emit('request_availability_update');
+    }, 10000);
+    
+    // Handle socket events
+    socket.on('availability_update', updateAvailabilityDisplay);
+
+    // QR code generation for client portal URL
+    (function generateQr() {
+        try {
+            // Ask server for LAN URL first (works on same Wi‑Fi). Fallback to current origin.
+            fetch('/api/lan-url').then(r => r.ok ? r.json() : { ok:false }).then(data => {
+                let target;
+                if (data && data.ok && data.url) {
+                    target = data.url;
+                } else {
+                    const host = window.location.hostname;
+                    const useSameOrigin = (window.location.port === '5001');
+                    const portalUrl = useSameOrigin ? window.location.origin : (window.location.protocol + '//' + host + ':5001');
+                    target = portalUrl + '/';
+                }
+
+                // Load a lightweight QR generator
+                const script = document.createElement('script');
+                script.src = 'https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js';
+                script.onload = function() {
+                    const canvas = document.createElement('canvas');
+                    const qr = new QRious({
+                        element: canvas,
+                        value: target,
+                        size: 220,
+                        level: 'H'
+                    });
+                    const holder = document.getElementById('qr-code');
+                    if (holder) {
+                        holder.innerHTML = '';
+                        holder.appendChild(canvas);
+                    }
+                    const hint = document.getElementById('qr-hint');
+                    if (hint) hint.textContent = 'Scan to open: ' + target + ' (phone must reach this IP over Wi‑Fi or internet)';
+                };
+                document.head.appendChild(script);
+            }).catch(() => {});
+        } catch (e) {
+            // Silent fail
+        }
+    })();
+</script>
+{% endblock %}

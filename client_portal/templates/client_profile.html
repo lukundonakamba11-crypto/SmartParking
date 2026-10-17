@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}My Profile - Smart Parking{% endblock %}
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center"><div class="col-lg-8">
+        <div class="card"><div class="card-body p-5">
+            <h2 class="fw-bold mb-2"><i class="fas fa-user-circle text-primary"></i> Account profile</h2>
+            <p class="text-muted mb-4">Update your contact details and registered vehicle.</p>
+            <form method="post">
+                <div class="row">
+                    <div class="col-md-6 mb-3"><label class="form-label" for="name">Full name</label><input class="form-control" id="name" name="name" value="{{ client.name }}" required></div>
+                    <div class="col-md-6 mb-3"><label class="form-label" for="contact">Contact number</label><input class="form-control" id="contact" name="contact" value="{{ client.contact }}" required></div>
+                    <div class="col-md-6 mb-3"><label class="form-label" for="email">Email</label><input class="form-control" type="email" id="email" name="email" value="{{ client.email or '' }}"><div class="form-text">Needed for password recovery (with SMTP configured).</div></div>
+                    <div class="col-md-6 mb-3"><label class="form-label" for="number_plate">Vehicle number plate</label><input class="form-control text-uppercase" id="number_plate" name="number_plate" value="{{ client.number_plate }}" required></div>
+                    <div class="col-md-6 mb-3"><label class="form-label" for="vehicle_type">Vehicle type</label><input class="form-control" id="vehicle_type" name="vehicle_type" value="{{ client.vehicle_type or '' }}"></div>
+                    <div class="col-md-6 mb-3"><label class="form-label" for="vehicle_color">Vehicle color</label><input class="form-control" id="vehicle_color" name="vehicle_color" value="{{ client.vehicle_color or '' }}"></div>
+                </div>
+                <hr class="my-4">
+                <h5 class="mb-3">Change password <span class="text-muted small">(optional)</span></h5>
+                <div class="row">
+                    <div class="col-md-6 mb-3"><label class="form-label" for="current_password">Current password</label><input class="form-control" type="password" id="current_password" name="current_password" autocomplete="current-password"></div>
+                    <div class="col-md-6 mb-3"><label class="form-label" for="new_password">New password</label><input class="form-control" type="password" id="new_password" name="new_password" minlength="8" autocomplete="new-password"></div>
+                </div>
+                <button class="btn btn-primary" type="submit"><i class="fas fa-save"></i> Save changes</button>
+                <a class="btn btn-outline-secondary ms-2" href="{{ url_for('client_dashboard') }}">Back to dashboard</a>
+            </form>
+        </div></div>
+    </div></div>
+</div>
+{% endblock %}

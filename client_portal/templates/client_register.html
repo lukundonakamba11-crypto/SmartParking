@@ -1,0 +1,173 @@
+{% extends "base.html" %}
+
+{% block title %}Client Registration - Smart Parking System{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8 col-md-10">
+            <div class="card">
+                <div class="card-body p-5">
+                    <div class="text-center mb-4">
+                        <h2 class="fw-bold mb-3">
+                            <i class="fas fa-user-plus text-primary"></i> Create Account
+                        </h2>
+                        <p class="text-muted">Register to start reserving parking spots</p>
+                    </div>
+
+                    <form method="POST">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="name" class="form-label">
+                                        <i class="fas fa-user"></i> Full Name *
+                                    </label>
+                                    <input type="text" 
+                                           class="form-control" 
+                                           id="name" 
+                                           name="name" 
+                                           placeholder="Enter your full name"
+                                           required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="nrc_number" class="form-label">
+                                        <i class="fas fa-id-card"></i> NRC Number *
+                                    </label>
+                                    <input type="text" 
+                                           class="form-control" 
+                                           id="nrc_number" 
+                                           name="nrc_number" 
+                                           placeholder="Enter your NRC number"
+                                           required>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="contact" class="form-label">
+                                        <i class="fas fa-phone"></i> Contact Number *
+                                    </label>
+                                    <input type="tel" 
+                                           class="form-control" 
+                                           id="contact" 
+                                           name="contact" 
+                                           placeholder="Enter your contact number"
+                                           required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="email" class="form-label">
+                                        <i class="fas fa-envelope"></i> Email Address
+                                    </label>
+                                    <input type="email" 
+                                           class="form-control" 
+                                           id="email" 
+                                           name="email" 
+                                           placeholder="Enter your email (optional)">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="number_plate" class="form-label">
+                                <i class="fas fa-car"></i> Vehicle Number Plate *
+                            </label>
+                            <input type="text" 
+                                   class="form-control" 
+                                   id="number_plate" 
+                                   name="number_plate" 
+                                   placeholder="Enter your vehicle number plate"
+                                   required
+                                   style="text-transform: uppercase;">
+                            <div class="form-text">Used to identify your vehicle; sign in with your plate and password.</div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="vehicle_type" class="form-label">Vehicle type</label>
+                                <input type="text" class="form-control" id="vehicle_type" name="vehicle_type" placeholder="e.g. Sedan">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="vehicle_color" class="form-label">Vehicle color</label>
+                                <input type="text" class="form-control" id="vehicle_color" name="vehicle_color" placeholder="e.g. Blue">
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="password" class="form-label"><i class="fas fa-lock"></i> Password *</label>
+                            <input type="password" class="form-control" id="password" name="password" minlength="8" autocomplete="new-password" required>
+                            <div class="form-text">Use at least 8 characters. Your number plate is no longer your password.</div>
+                        </div>
+
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-user-plus"></i> Create Account
+                            </button>
+                        </div>
+                    </form>
+
+                    <div class="text-center mt-4">
+                        <p class="text-muted">
+                            Already have an account? 
+                            <a href="{{ url_for('client_login') }}" class="text-decoration-none">
+                                Login here
+                            </a>
+                        </p>
+                        <p class="text-muted">
+                            <a href="{{ url_for('free_parking') }}" class="text-decoration-none">
+                                <i class="fas fa-arrow-left"></i> Back to Free Parking
+                            </a>
+                        </p>
+                    </div>
+
+                    <!-- Benefits Information -->
+                    <div class="alert alert-success mt-4">
+                        <h6><i class="fas fa-star"></i> Account Benefits</h6>
+                        <ul class="mb-0 small">
+                            <li>Reserve parking spots in advance</li>
+                            <li>Real-time availability updates</li>
+                            <li>Manage your profile and vehicle details</li>
+                            <li>24/7 security surveillance</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Auto-format number plate input
+    document.getElementById('number_plate').addEventListener('input', function(e) {
+        e.target.value = e.target.value.toUpperCase();
+    });
+
+    // Form validation
+    document.querySelector('form').addEventListener('submit', function(e) {
+        const requiredFields = ['name', 'nrc_number', 'contact', 'number_plate'];
+        let isValid = true;
+
+        requiredFields.forEach(fieldName => {
+            const field = document.getElementById(fieldName);
+            if (!field.value.trim()) {
+                field.classList.add('is-invalid');
+                isValid = false;
+            } else {
+                field.classList.remove('is-invalid');
+            }
+        });
+
+        if (!isValid) {
+            e.preventDefault();
+            alert('Please fill in all required fields.');
+        }
+    });
+</script>
+{% endblock %}

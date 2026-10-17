@@ -1,0 +1,4227 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Parking System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+
+        .sidebar {
+            background: linear-gradient(145deg, #2c3e50, #34495e);
+            min-height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 250px;
+            z-index: 1000;
+            box-shadow: 2px 0 15px rgba(0, 0, 0, 0.3);
+            border-right: 2px solid #4a5f7a;
+        }
+
+        .sidebar .nav-link {
+            color: rgba(236, 240, 241, 0.8);
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin: 5px 15px;
+            transition: all 0.3s ease;
+            border: 1px solid transparent;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-size: 0.9rem;
+        }
+
+        .sidebar .nav-link:hover {
+            color: #ecf0f1;
+            background: linear-gradient(145deg, #34495e, #2c3e50);
+            border-color: #4a5f7a;
+            transform: translateX(5px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .sidebar .nav-link.active {
+            color: #ecf0f1;
+            background: linear-gradient(145deg, #27ae60, #2ecc71);
+            border-color: #2ecc71;
+            transform: translateX(5px);
+            box-shadow: 0 4px 15px rgba(39, 174, 96, 0.3);
+        }
+
+        .sidebar .nav-link i {
+            width: 20px;
+            margin-right: 10px;
+            font-size: 1.1rem;
+        }
+
+        .sidebar .nav-link.text-danger {
+            color: #e74c3c !important;
+            border-color: transparent;
+        }
+
+        .sidebar .nav-link.text-danger:hover {
+            color: #ecf0f1 !important;
+            background: linear-gradient(145deg, #e74c3c, #c0392b);
+            border-color: #c0392b;
+        }
+
+        .sidebar-header {
+            background: linear-gradient(145deg, #34495e, #2c3e50);
+            padding: 20px;
+            border-bottom: 2px solid #4a5f7a;
+            text-align: center;
+        }
+
+        .sidebar-header h4 {
+            color: #ecf0f1;
+            margin: 0;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-size: 1.2rem;
+        }
+
+        .sidebar-header i {
+            color: #27ae60;
+            margin-right: 10px;
+        }
+
+        .main-content {
+            margin-left: 250px;
+            padding: 20px;
+        }
+
+        .content-section {
+            display: none;
+        }
+
+        .content-section.active {
+            display: block;
+        }
+
+        .stats-card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            margin-bottom: 20px;
+            transition: transform 0.3s ease;
+        }
+
+        .stats-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stats-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .stats-icon {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .stats-content {
+            text-align: center;
+        }
+
+        .stats-label {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #6c757d;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .slot-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .slot-item {
+            width: 80px;
+            height: 80px;
+            border: 3px solid;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .slot-item.free {
+            border-color: #28a745;
+            color: #28a745;
+        }
+
+        .slot-item.occupied {
+            border-color: #dc3545;
+            color: #dc3545;
+        }
+
+        .slot-item:hover {
+            transform: scale(1.1);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .slot-plate {
+            display: block;
+            font-size: 0.7rem;
+            color: #6c757d;
+            margin-top: 5px;
+            line-height: 1.1;
+        }
+
+        .table-responsive {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+        }
+
+        .btn-action {
+            padding: 5px 10px;
+            margin: 2px;
+            border-radius: 5px;
+            border: none;
+            font-size: 0.8rem;
+        }
+
+        .btn-accept {
+            background-color: #28a745;
+            color: white;
+        }
+
+        .btn-reject {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        .btn-cancel {
+            background-color: #ffc107;
+            color: black;
+        }
+
+        .header-bar {
+            background: linear-gradient(145deg, #34495e, #2c3e50);
+            padding: 20px 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            margin-bottom: 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 2px solid #4a5f7a;
+        }
+
+        .header-bar h2 {
+            color: #ecf0f1;
+            margin: 0;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .header-bar .badge {
+            background: linear-gradient(145deg, #27ae60, #2ecc71);
+            color: white;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding: 8px 16px;
+            border-radius: 20px;
+        }
+
+        .header-bar .btn {
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-radius: 8px;
+        }
+
+        .status-badge {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .status-pending {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+
+        .status-accepted {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .status-rejected {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        .status-active {
+            background-color: #d1ecf1;
+            color: #0c5460;
+        }
+
+        .status-completed {
+            background-color: #e2e3e5;
+            color: #383d41;
+        }
+
+        .btn-control {
+            padding: 10px 20px;
+            margin: 5px;
+            border-radius: 10px;
+            border: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-start {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+        }
+
+        .btn-stop {
+            background: linear-gradient(135deg, #dc3545, #e74c3c);
+            color: white;
+        }
+
+        .btn-start:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(40, 167, 69, 0.4);
+        }
+
+        .btn-stop:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(220, 53, 69, 0.4);
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
+        .status-running {
+            background-color: #28a745;
+            animation: pulse 2s infinite;
+        }
+
+        .status-stopped {
+            background-color: #dc3545;
+        }
+
+        @keyframes pulse {
+            0% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.5;
+            }
+
+            100% {
+                opacity: 1;
+            }
+        }
+
+        .log-container {
+            background: #1e1e1e;
+            color: #f8f9fa;
+            border-radius: 10px;
+            padding: 15px;
+            height: 300px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+        }
+
+        .log-entry {
+            margin-bottom: 5px;
+            padding: 2px 0;
+        }
+
+        .log-timestamp {
+            color: #6c757d;
+        }
+
+        .log-info {
+            color: #17a2b8;
+        }
+
+        .log-success {
+            color: #28a745;
+        }
+
+        .log-error {
+            color: #dc3545;
+        }
+
+        .live-frame {
+            max-width: 100%;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Industrial Control Panel Styles */
+        .industrial-control-panel {
+            background: linear-gradient(145deg, #2c3e50, #34495e);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            border: 2px solid #34495e;
+        }
+
+        .control-functions-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 30px;
+            gap: 20px;
+        }
+
+        .control-function {
+            flex: 1;
+            background: linear-gradient(145deg, #34495e, #2c3e50);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            border: 2px solid #4a5f7a;
+            transition: all 0.3s ease;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .control-function:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+            border-color: #5a6f8a;
+        }
+
+        .function-header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 15px;
+            gap: 10px;
+        }
+
+        .function-title {
+            color: #ecf0f1;
+            font-weight: 600;
+            font-size: 1.1rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn-toggle {
+            background: linear-gradient(145deg, #27ae60, #2ecc71);
+            border: none;
+            border-radius: 8px;
+            padding: 12px 24px;
+            color: white;
+            font-weight: bold;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(39, 174, 96, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+        }
+
+        .btn-toggle:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(39, 174, 96, 0.4);
+        }
+
+        .btn-toggle.running {
+            background: linear-gradient(145deg, #e74c3c, #c0392b);
+            box-shadow: 0 4px 15px rgba(231, 76, 60, 0.3);
+        }
+
+        .btn-toggle.running:hover {
+            box-shadow: 0 6px 20px rgba(231, 76, 60, 0.4);
+        }
+
+        .monitoring-container {
+            display: flex;
+            gap: 20px;
+            height: 500px;
+        }
+
+        .live-stream-container {
+            flex: 2;
+            background: linear-gradient(145deg, #2c3e50, #34495e);
+            border-radius: 12px;
+            border: 2px solid #4a5f7a;
+            overflow: hidden;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .stream-header {
+            background: linear-gradient(145deg, #34495e, #2c3e50);
+            padding: 15px 20px;
+            border-bottom: 2px solid #4a5f7a;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .stream-header h5 {
+            color: #ecf0f1;
+            margin: 0;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .stream-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .stream-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background-color: #e74c3c;
+            animation: pulse 2s infinite;
+        }
+
+        .stream-indicator.online {
+            background-color: #27ae60;
+        }
+
+        #stream-status-text {
+            color: #ecf0f1;
+            font-weight: 600;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+        }
+
+        .stream-viewer {
+            height: calc(100% - 60px);
+            position: relative;
+            background: #1a1a1a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .live-frame {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 0;
+        }
+
+        .no-stream-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(145deg, #1a1a1a, #2c2c2c);
+        }
+
+        .no-stream-content {
+            text-align: center;
+            color: #7f8c8d;
+        }
+
+        .no-stream-content i {
+            font-size: 4rem;
+            margin-bottom: 15px;
+            color: #5a6c7d;
+        }
+
+        .no-stream-content h6 {
+            color: #95a5a6;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .no-stream-content p {
+            margin: 0;
+            font-size: 0.9rem;
+        }
+
+        .system-logs-container {
+            flex: 1;
+            background: linear-gradient(145deg, #2c3e50, #34495e);
+            border-radius: 12px;
+            border: 2px solid #4a5f7a;
+            overflow: hidden;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .logs-header {
+            background: linear-gradient(145deg, #34495e, #2c3e50);
+            padding: 15px 20px;
+            border-bottom: 2px solid #4a5f7a;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logs-header h5 {
+            color: #ecf0f1;
+            margin: 0;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn-clear-logs {
+            background: linear-gradient(145deg, #e74c3c, #c0392b);
+            border: none;
+            border-radius: 6px;
+            padding: 8px 12px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(231, 76, 60, 0.3);
+        }
+
+        .btn-clear-logs:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(231, 76, 60, 0.4);
+        }
+
+        .log-container {
+            height: calc(100% - 60px);
+            background: #1a1a1a;
+            overflow-y: auto;
+            padding: 15px;
+        }
+
+        .log-entry {
+            margin-bottom: 8px;
+            padding: 4px 0;
+            font-size: 0.85rem;
+            line-height: 1.4;
+        }
+
+        .log-timestamp {
+            color: #7f8c8d;
+            font-weight: 600;
+        }
+
+        .log-info {
+            color: #3498db;
+        }
+
+        .log-success {
+            color: #27ae60;
+        }
+
+        .log-error {
+            color: #e74c3c;
+        }
+
+        /* Industrial Search Bar Styles */
+        .industrial-search-container {
+            background: linear-gradient(145deg, #2c3e50, #34495e);
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            border: 2px solid #4a5f7a;
+            margin-bottom: 20px;
+        }
+
+        .industrial-search-title {
+            color: #ecf0f1;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+        }
+
+        .industrial-search-title i {
+            color: #27ae60;
+            font-size: 1rem;
+        }
+
+        .industrial-form-group {
+            margin-bottom: 0;
+        }
+
+        .industrial-form-label {
+            color: #bdc3c7;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-size: 0.75rem;
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        .industrial-form-control {
+            background: linear-gradient(145deg, #34495e, #2c3e50);
+            border: 2px solid #4a5f7a;
+            border-radius: 6px;
+            color: #ecf0f1;
+            padding: 8px 12px;
+            font-size: 0.85rem;
+            transition: all 0.3s ease;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .industrial-form-control:focus {
+            border-color: #27ae60;
+            box-shadow: 0 0 0 0.2rem rgba(39, 174, 96, 0.25), inset 0 2px 4px rgba(0, 0, 0, 0.2);
+            background: linear-gradient(145deg, #2c3e50, #34495e);
+            color: #ecf0f1;
+        }
+
+        .industrial-form-control::placeholder {
+            color: #7f8c8d;
+        }
+
+        .industrial-btn {
+            background: linear-gradient(145deg, #27ae60, #2ecc71);
+            border: 2px solid #27ae60;
+            border-radius: 6px;
+            color: white;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 8px 15px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(39, 174, 96, 0.3);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.8rem;
+        }
+
+        .industrial-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(39, 174, 96, 0.4);
+            background: linear-gradient(145deg, #2ecc71, #27ae60);
+        }
+
+        .industrial-btn-danger {
+            background: linear-gradient(145deg, #e74c3c, #c0392b);
+            border-color: #e74c3c;
+            box-shadow: 0 4px 15px rgba(231, 76, 60, 0.3);
+        }
+
+        .industrial-btn-danger:hover {
+            background: linear-gradient(145deg, #c0392b, #e74c3c);
+            box-shadow: 0 6px 20px rgba(231, 76, 60, 0.4);
+        }
+
+        .industrial-btn-secondary {
+            background: linear-gradient(145deg, #7f8c8d, #95a5a6);
+            border-color: #7f8c8d;
+            box-shadow: 0 4px 15px rgba(127, 140, 141, 0.3);
+        }
+
+        .industrial-btn-secondary:hover {
+            background: linear-gradient(145deg, #95a5a6, #7f8c8d);
+            box-shadow: 0 6px 20px rgba(127, 140, 141, 0.4);
+        }
+
+        .search-inputs-container {
+            transition: margin-left 0.3s ease;
+        }
+
+        .search-inputs-container.with-buttons {
+            margin-left: 20px;
+        }
+
+        /* Sticky Top Section */
+        .sticky-top-section {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: #f8f9fa;
+            padding-bottom: 5px;
+            margin-bottom: 5px;
+        }
+
+        .sticky-top-section::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 20px;
+            background: linear-gradient(to bottom, rgba(248, 249, 250, 1), rgba(248, 249, 250, 0));
+            pointer-events: none;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Sidebar -->
+    <nav class="sidebar">
+        <div class="sidebar-header">
+            <h4>
+                <i class="fas fa-parking"></i> Parking Admin
+            </h4>
+        </div>
+
+        <ul class="nav flex-column">
+            <li class="nav-item">
+                <a class="nav-link active" href="#" onclick="showSection('dashboard')">
+                    <i class="fas fa-tachometer-alt"></i> Dashboard
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#" onclick="showSection('controls')">
+                    <i class="fas fa-cogs"></i> Controls
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#" onclick="showSection('parking-slots')">
+                    <i class="fas fa-car"></i> Parking Lot
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#" onclick="showSection('clients')">
+                    <i class="fas fa-users"></i> Clients
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#" onclick="showSection('reservations')">
+                    <i class="fas fa-calendar-check"></i> Reservations
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#" onclick="showSection('requests')">
+                    <i class="fas fa-inbox"></i> Requests
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#" onclick="showSection('saved-videos')">
+                    <i class="fas fa-video"></i> Saved Videos
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#" onclick="showSection('trash')">
+                    <i class="fas fa-trash"></i> Trash
+                </a>
+            </li>
+        </ul>
+
+        <div class="mt-auto p-3">
+            <a href="/logout" class="nav-link text-danger">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </a>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Dashboard Section -->
+        <div id="dashboard" class="content-section active">
+            <div class="header-bar">
+                <h2><i class="fas fa-tachometer-alt"></i> Dashboard Overview</h2>
+                <div class="d-flex align-items-center gap-3">
+                    <div>
+                        <span class="badge bg-primary">Live</span>
+                        <span class="ms-2">Welcome, {{ session.admin_username }}</span>
+                    </div>
+                    <a href="/logout" class="btn btn-outline-danger btn-sm">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </a>
+                </div>
+            </div>
+
+            <!-- Control Status Cards (Top Row) -->
+            <div class="row g-3 mb-4">
+                <div class="col-md-3">
+                    <div class="stats-card text-center">
+                        <div>
+                            <div class="mb-2"><i class="fas fa-broadcast-tower fa-2x text-primary"></i></div>
+                            <div class="fw-bold">Live Stream</div>
+                            <div id="kpi-live" class="badge bg-secondary mt-2">Off</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stats-card text-center">
+                        <div>
+                            <div class="mb-2"><i class="fas fa-ruler-combined fa-2x text-info"></i></div>
+                            <div class="fw-bold">Calibration</div>
+                            <div id="kpi-calibration" class="badge bg-secondary mt-2">Off</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stats-card text-center">
+                        <div>
+                            <div class="mb-2"><i class="fas fa-microchip fa-2x text-success"></i></div>
+                            <div class="fw-bold">Detection</div>
+                            <div id="kpi-detection" class="badge bg-secondary mt-2">Off</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stats-card text-center">
+                        <div>
+                            <div class="mb-2"><i class="fas fa-tv fa-2x text-warning"></i></div>
+                            <div class="fw-bold">Viewer</div>
+                            <div id="kpi-viewer" class="badge bg-secondary mt-2">Off</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Parking Statistics Cards -->
+            <div class="row g-3 mb-4">
+                <div class="col-md-3">
+                    <div class="stats-card text-center">
+                        <i class="fas fa-car fa-2x text-primary mb-3"></i>
+                        <div class="stats-number" id="total-slots">0</div>
+                        <div class="text-muted">Total Slots</div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stats-card text-center">
+                        <i class="fas fa-check-circle fa-2x text-success mb-3"></i>
+                        <div class="stats-number" id="free-slots">0</div>
+                        <div class="text-muted">Free Slots</div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stats-card text-center">
+                        <i class="fas fa-times-circle fa-2x text-danger mb-3"></i>
+                        <div class="stats-number" id="occupied-slots">0</div>
+                        <div class="text-muted">Occupied</div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stats-card text-center">
+                        <i class="fas fa-calendar-check fa-2x text-secondary mb-3"></i>
+                        <div class="stats-number" id="reserved-slots">0</div>
+                        <div class="text-muted">Reserved</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recording, Videos, and Requests Row -->
+            <div class="row g-3 mb-4">
+                <div class="col-md-4">
+                    <div class="stats-card text-center">
+                        <i class="fas fa-record-vinyl fa-lg text-danger mb-2"></i>
+                        <div class="fw-bold mb-2">Recording</div>
+                        <div class="d-flex justify-content-center mb-2">
+                            <button class="btn btn-success btn-sm" id="dashRecToggleBtn">
+                                <i class="fas fa-play"></i> Start
+                            </button>
+                        </div>
+                        <div class="small text-muted" id="recording-summary">Stopped</div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="stats-card text-center">
+                        <i class="fas fa-video fa-lg text-primary mb-2"></i>
+                        <div class="fw-bold mb-2">Videos</div>
+                        <div id="videos-mini-slider" class="d-flex align-items-center justify-content-center mb-2" style="min-height: 40px;">
+                            <div class="mini-slide" data-k="saved" style="display:flex; flex-direction: column; align-items:center; justify-content:center; gap:4px;">
+                                <div class="d-flex align-items-center gap-2">
+                                    <i class="fas fa-folder-open text-primary"></i>
+                                    <span class="badge bg-primary" id="saved-count">0</span>
+                                </div>
+                            </div>
+                            <div class="mini-slide" data-k="pinned" style="display:none; flex-direction: column; align-items:center; justify-content:center; gap:4px;">
+                                <div class="d-flex align-items-center gap-2">
+                                    <i class="fas fa-thumbtack text-warning"></i>
+                                    <span class="badge bg-warning text-dark" id="pinned-count">0</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mini-slide-text" style="min-height: 16px;">
+                            <div class="mini-slide" data-k="saved" style="display:block;">
+                                <div class="small text-muted">Saved</div>
+                            </div>
+                            <div class="mini-slide" data-k="pinned" style="display:none;">
+                                <div class="small text-muted">Pinned</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="stats-card text-center">
+                        <i class="fas fa-inbox fa-lg text-info mb-2"></i>
+                        <div class="fw-bold mb-2">Pending Requests</div>
+                        <div class="stats-number" id="dashboard-pending-requests">0</div>
+                        <div class="small text-muted">Awaiting approval</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Controls Section -->
+        <div id="controls" class="content-section">
+            <div class="header-bar">
+                <h2><i class="fas fa-cogs"></i> System Controls</h2>
+                <div>
+                    <button class="btn btn-outline-primary" onclick="refreshControls()">
+                        <i class="fas fa-sync-alt"></i> Refresh Status
+                    </button>
+                </div>
+            </div>
+
+            <!-- Industrial Control Panel -->
+            <div class="industrial-control-panel">
+                <!-- Function Control Buttons -->
+                <div class="control-functions-row">
+                    <div class="control-function">
+                        <div class="function-header">
+                            <span class="status-indicator" id="live-status"></span>
+                            <span class="function-title">Live Stream</span>
+                        </div>
+                        <button class="btn-toggle" id="live-btn" onclick="toggleLive()">
+                            <i class="fas fa-play"></i>
+                            <span class="btn-text">START</span>
+                        </button>
+                    </div>
+
+                    <div class="control-function">
+                        <div class="function-header">
+                            <span class="status-indicator" id="calibration-status"></span>
+                            <span class="function-title">Calibration</span>
+                        </div>
+                        <button class="btn-toggle" id="calibration-btn" onclick="toggleCalibration()">
+                            <i class="fas fa-play"></i>
+                            <span class="btn-text">START</span>
+                        </button>
+                    </div>
+
+                    <div class="control-function">
+                        <div class="function-header">
+                            <span class="status-indicator" id="detection-status"></span>
+                            <span class="function-title">Detection</span>
+                        </div>
+                        <button class="btn-toggle" id="detection-btn" onclick="toggleDetection()">
+                            <i class="fas fa-play"></i>
+                            <span class="btn-text">START</span>
+                        </button>
+                    </div>
+
+                    <div class="control-function">
+                        <div class="function-header">
+                            <span class="status-indicator" id="viewer-status"></span>
+                            <span class="function-title">Viewer</span>
+                        </div>
+                        <button class="btn-toggle" id="viewer-btn" onclick="toggleViewer()">
+                            <i class="fas fa-play"></i>
+                            <span class="btn-text">START</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Live Stream and Logs Container -->
+                <div class="monitoring-container">
+                    <!-- Live Stream -->
+                    <div class="live-stream-container">
+                        <div class="stream-header">
+                            <h5><i class="fas fa-video"></i> ESP32-CAM Live Feed</h5>
+                            <div class="stream-status">
+                                <span class="stream-indicator" id="stream-indicator"></span>
+                                <span id="stream-status-text">OFFLINE</span>
+                            </div>
+                        </div>
+                        <div class="stream-viewer" id="stream-viewer">
+                            <img id="live-frame" class="live-frame" style="display: none;" alt="Live Stream">
+                            <div id="no-stream" class="no-stream-overlay">
+                                <div class="no-stream-content">
+                                    <i class="fas fa-video-slash"></i>
+                                    <h6>No Signal</h6>
+                                    <p>Start Live Stream to view ESP32-CAM feed</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- System Logs -->
+                    <div class="system-logs-container">
+                        <div class="logs-header">
+                            <h5><i class="fas fa-terminal"></i> System Logs</h5>
+                            <button class="btn-clear-logs" onclick="clearLogs()">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                        <div class="log-container" id="log-container">
+                            <div class="log-entry">
+                                <span class="log-timestamp">[System]</span>
+                                <span class="log-info">Control panel initialized</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Parking Lot Section -->
+        <div id="parking-slots" class="content-section">
+            <div class="header-bar">
+                <h2><i class="fas fa-car"></i> Parking Lot</h2>
+                <div>
+                    <button class="btn btn-primary" onclick="refreshSlots()">
+                        <i class="fas fa-sync-alt"></i> <!--Refresh-->
+                    </button>
+                    <span class="badge bg-success ms-2" id="connection-status">
+                        <i class="fas fa-wifi"></i> <!--Connected--> 
+                    </span>
+                </div>
+            </div>
+
+            <!-- Real-time Statistics Panel -->
+            <div class="row mb-4">
+                <div class="col-md-4">
+                    <div class="stats-card text-center">
+                        <div class="stats-icon">
+                            <i class="fas fa-parking text-info"></i>
+                        </div>
+                        <div class="stats-content">
+                            <h6 class="stats-label">Total Slots</h6>
+                            <div class="stats-number" id="parking-total-slots">0</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="stats-card text-center">
+                        <div class="stats-icon">
+                            <i class="fas fa-check-circle text-success"></i>
+                        </div>
+                        <div class="stats-content">
+                            <h6 class="stats-label">Free Slots</h6>
+                            <div class="stats-number" id="parking-free-slots">0</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="stats-card text-center">
+                        <div class="stats-icon">
+                            <i class="fas fa-times-circle text-danger"></i>
+                        </div>
+                        <div class="stats-content">
+                            <h6 class="stats-label">Occupied Slots</h6>
+                            <div class="stats-number" id="parking-occupied-slots">0</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="stats-card text-center">
+                        <div class="stats-icon">
+                            <i class="fas fa-calendar-check text-secondary"></i>
+                        </div>
+                        <div class="stats-content">
+                            <h6 class="stats-label">Reserved</h6>
+                            <div class="stats-number" id="parking-reserved-slots">0</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Parking Lot Status Bar -->
+            <div class="stats-card">
+                <h5 class="mb-3"><i class="fas fa-chart-bar"></i> Parking Lot Status</h5>
+                <div class="parking-status-container" style="height: 40px; background: #f8f9fa; border-radius: 8px; position: relative; overflow: hidden;">
+                    <div id="parking-status-bar" style="height: 100%; background: linear-gradient(90deg, #28a745 0%, #ffc107 50%, #dc3545 100%); width: 0%; transition: width 0.5s ease; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;">
+                        <span id="parking-status-text">0% Occupied</span>
+                    </div>
+                </div>
+                <div class="d-flex justify-content-between mt-2 small text-muted">
+                    <span>Empty</span>
+                    <span>Half Full</span>
+                    <span>Full</span>
+                </div>
+
+                <div class="stats-card">
+                    <h5 class="mb-3"><i class="fas fa-th-large"></i> Slot Map</h5>
+                    <div id="slot-grid" class="slot-grid">
+                        <div class="text-muted">Waiting for slot detection data...</div>
+                    </div>
+                </div>
+            </div>
+
+        <!-- Reservations Section -->
+        <div id="reservations" class="content-section">
+            <div class="header-bar">
+                <h2><i class="fas fa-calendar-check"></i> Active Reservations</h2>
+                <button class="btn btn-primary" onclick="refreshReservations()">
+                    <i class="fas fa-sync-alt"></i> Refresh
+                </button>
+            </div>
+
+            <!-- Parking Status Cards -->
+            <div class="row mb-4" id="parking-status-cards">
+                <div class="col-md-3">
+                    <div class="card text-center border-0 shadow-sm">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center justify-content-center mb-2">
+                                <i class="fas fa-parking text-primary me-2"></i>
+                                <h5 class="card-title mb-0">Slot Status</h5>
+                            </div>
+                            <h3 class="text-primary mb-1" id="slot-status-display">-/-</h3>
+                            <small class="text-muted">Free/Total Slots</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card text-center border-0 shadow-sm">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center justify-content-center mb-2">
+                                <i class="fas fa-calendar-check text-success me-2"></i>
+                                <h5 class="card-title mb-0">Active Reservations</h5>
+                            </div>
+                            <h3 class="text-success mb-1" id="active-reservations-count">0</h3>
+                            <small class="text-muted">Currently Reserved</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card text-center border-0 shadow-sm">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center justify-content-center mb-2">
+                                <i class="fas fa-clock text-warning me-2"></i>
+                                <h5 class="card-title mb-0">Next Free Slots</h5>
+                            </div>
+                            <h3 class="text-warning mb-1" id="next-free-slots-timer">--:--:--</h3>
+                            <small class="text-muted" id="next-free-slots-time">Next availability</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card text-center border-0 shadow-sm">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center justify-content-center mb-2">
+                                <i class="fas fa-chart-pie text-info me-2"></i>
+                                <h5 class="card-title mb-0">Occupancy Rate</h5>
+                            </div>
+                            <h3 class="text-info mb-1" id="occupancy-rate">0%</h3>
+                            <small class="text-muted">Parking Utilization</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Reservation ID</th>
+                            <th class="d-none">Slot ID</th>
+                            <th class="d-none">Client ID</th>
+                            <th class="d-none">Request ID</th>
+                            <th>Client Name</th>
+                            <th>Number Plate</th>
+                            <th>Start Time</th>
+                            <th>End Time</th>
+                            <th>Duration (hours)</th>
+                            <th>Status</th>
+                            <th>Created At</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="reservations-table">
+                        <!-- Reservations will be populated here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Requests Section -->
+        <div id="requests" class="content-section">
+            <div class="header-bar">
+                <h2><i class="fas fa-inbox"></i> Reservation Requests</h2>
+                <div>
+                    <button class="btn btn-success" onclick="processFIFO()">
+                        <i class="fas fa-play"></i> Process FIFO
+                    </button>
+                    <button class="btn btn-primary ms-2" onclick="refreshRequests()">
+                        <i class="fas fa-sync-alt"></i> Refresh
+                    </button>
+                </div>
+            </div>
+
+            <!-- Parking Status Cards -->
+            <div class="row mb-4" id="request-parking-status-cards">
+                <div class="col-md-3">
+                    <div class="card text-center border-0 shadow-sm">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center justify-content-center mb-2">
+                                <i class="fas fa-parking text-primary me-2"></i>
+                                <h5 class="card-title mb-0">Slot Status</h5>
+                            </div>
+                            <h3 class="text-primary mb-1" id="request-slot-status-display">-/-</h3>
+                            <small class="text-muted">Free/Total Slots</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card text-center border-0 shadow-sm">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center justify-content-center mb-2">
+                                <i class="fas fa-calendar-check text-success me-2"></i>
+                                <h5 class="card-title mb-0">Active Reservations</h5>
+                            </div>
+                            <h3 class="text-success mb-1" id="request-active-reservations-count">0</h3>
+                            <small class="text-muted">Currently Reserved</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card text-center border-0 shadow-sm">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center justify-content-center mb-2">
+                                <i class="fas fa-clock text-warning me-2"></i>
+                                <h5 class="card-title mb-0">Next Free Slots</h5>
+                            </div>
+                            <h3 class="text-warning mb-1" id="request-next-free-slots-timer">--:--:--</h3>
+                            <small class="text-muted" id="request-next-free-slots-time">Next availability</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card text-center border-0 shadow-sm">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center justify-content-center mb-2">
+                                <i class="fas fa-chart-pie text-info me-2"></i>
+                                <h5 class="card-title mb-0">Occupancy Rate</h5>
+                            </div>
+                            <h3 class="text-info mb-1" id="request-occupancy-rate">0%</h3>
+                            <small class="text-muted">Parking Utilization</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Request ID</th>
+                            <th class="d-none">Name</th>
+                            <th>Number Plate</th>
+                            <th>Duration (hours)</th>
+                            <th>Day</th>
+                            <th>Start Time</th>
+                            <th>Payment Status</th>
+                            <th>Status</th>
+                            <th>Created At</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="requests-table">
+                        <!-- Requests will be populated here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Saved Videos Section -->
+        <div id="saved-videos" class="content-section">
+            <!-- Sticky Top Section -->
+            <div class="sticky-top-section">
+                <div class="header-bar">
+                    <h2><i class="fas fa-video"></i> Video Management</h2>
+                    <div class="d-flex gap-2">
+                        <button id="startRecordingBtn" class="btn btn-success">
+                            <i class="fas fa-record-vinyl"></i> Start
+                        </button>
+                        <button id="stopRecordingBtn" class="btn btn-danger" disabled>
+                            <i class="fas fa-stop"></i> Stop
+                        </button>
+                        <button id="showImportantBtn" class="btn btn-secondary">
+                            <i class="fas fa-thumbtack"></i> Pinned Videos
+                        </button>
+                        <button id="refreshVideosBtn" class="btn btn-primary">
+                            <i class="fas fa-sync-alt"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Recording Status -->
+                <div id="recordingStatus" class="alert alert-info d-none mb-3">
+                    <i class="fas fa-circle text-danger"></i> <span id="recordingText">Recording in progress...</span>
+                </div>
+
+                <!-- Industrial Search and Filter -->
+                <div class="industrial-search-container">
+                    <div class="d-flex align-items-end justify-content-between">
+                        <div class="d-flex align-items-end gap-2">
+                            <button id="searchVideosBtn" class="industrial-btn">
+                                <i class="fas fa-search"></i> Search
+                            </button>
+                            <button id="downloadSelectedVideosBtn" class="industrial-btn d-none">
+                                <i class="fas fa-download"></i> Download Selected
+                            </button>
+                            <button id="pinSelectedVideosBtn" class="industrial-btn d-none">
+                                <i class="fas fa-thumbtack"></i> Pin Selected
+                            </button>
+                            <button id="deleteAllVideosBtn" class="industrial-btn industrial-btn-danger d-none">
+                                <i class="fas fa-trash"></i> Delete
+                            </button>
+                            <button id="clearSearchBtn" class="industrial-btn industrial-btn-secondary d-none">
+                                <i class="fas fa-times"></i> Clear
+                            </button>
+                        </div>
+                        <div class="search-inputs-container d-flex gap-3">
+                            <div class="industrial-form-group">
+                                <label for="videoSearchDate" class="industrial-form-label">Date</label>
+                                <input type="date" class="industrial-form-control" id="videoSearchDate"
+                                    placeholder="Select date">
+                            </div>
+                            <div class="industrial-form-group">
+                                <label for="videoSearchTime" class="industrial-form-label">Time</label>
+                                <input type="time" class="industrial-form-control" id="videoSearchTime"
+                                    placeholder="Select time">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Videos Table -->
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-dark">
+                        <tr>
+                            <th><input type="checkbox" id="selectAllCheckbox" onchange="toggleSelectAll()"></th>
+                            <th>Filename</th>
+                            <th>Start Time</th>
+                            <th>End Time</th>
+                            <th>Duration</th>
+                            <th>File Size</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="videosTableBody">
+                        <tr>
+                            <td colspan="8" class="text-center text-muted">
+                                <i class="fas fa-spinner fa-spin"></i> Loading videos...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Important Videos Section -->
+        <div id="important-videos" class="content-section">
+            <!-- Sticky Top Section -->
+            <div class="sticky-top-section">
+                <div class="header-bar">
+                    <h2><i class="fas fa-thumbtack"></i> Important Videos</h2>
+                    <div class="d-flex gap-2">
+                        <button id="backToAllVideosBtn" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Back to All Videos
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Industrial Search and Filter for Important Videos -->
+                <div class="industrial-search-container">
+                    <div class="d-flex align-items-end justify-content-between">
+                        <div class="d-flex align-items-end gap-2">
+                            <button id="searchImportantVideosBtn" class="industrial-btn">
+                                <i class="fas fa-search"></i> Search
+                            </button>
+                            <button id="downloadSelectedImportantBtn" class="industrial-btn d-none">
+                                <i class="fas fa-download"></i> Download Selected
+                            </button>
+                            <button id="unpinSelectedVideosBtn" class="industrial-btn d-none">
+                                <i class="fas fa-thumbtack"></i> Unpin Selected
+                            </button>
+                            <button id="deleteAllImportantVideosBtn"
+                                class="industrial-btn industrial-btn-danger d-none">
+                                <i class="fas fa-trash"></i> Delete
+                            </button>
+                            <button id="clearImportantSearchBtn" class="industrial-btn industrial-btn-secondary d-none">
+                                <i class="fas fa-times"></i> Clear
+                            </button>
+                        </div>
+                        <div class="search-inputs-container d-flex gap-3">
+                            <div class="industrial-form-group">
+                                <label for="importantVideoSearchDate" class="industrial-form-label">Date</label>
+                                <input type="date" class="industrial-form-control" id="importantVideoSearchDate"
+                                    placeholder="Select date">
+                            </div>
+                            <div class="industrial-form-group">
+                                <label for="importantVideoSearchTime" class="industrial-form-label">Time</label>
+                                <input type="time" class="industrial-form-control" id="importantVideoSearchTime"
+                                    placeholder="Select time">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-dark">
+                        <tr>
+                            <th><input type="checkbox" id="selectAllImportantCheckbox"
+                                    onchange="toggleSelectAllImportant()"></th>
+                            <th>Filename</th>
+                            <th>Start Time</th>
+                            <th>End Time</th>
+                            <th>Duration</th>
+                            <th>File Size</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="importantVideosTableBody">
+                        <tr>
+                            <td colspan="8" class="text-center text-muted">
+                                <i class="fas fa-spinner fa-spin"></i> Loading important videos...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Clients Section -->
+        <div id="clients" class="content-section">
+            <!-- Sticky Top Section -->
+            <div class="sticky-top-section">
+                <div class="header-bar">
+                    <h2><i class="fas fa-users"></i> Client Management</h2>
+                    <div class="d-flex gap-2">
+                        <button id="addClientBtn" class="btn btn-primary">
+                            <i class="fas fa-plus"></i> Add Client
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Search and Filter -->
+                <div class="industrial-search-container">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-search"></i></span>
+                                <input type="text" id="clientSearchInput" class="form-control" placeholder="Search clients by name, NRC, contact, email, or number plate...">
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <select id="clientFilterSelect" class="form-select">
+                                <option value="all">All Clients</option>
+                                <option value="recent">Recently Added</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <button id="refreshClientsBtn" class="btn btn-outline-primary w-100">
+                                <i class="fas fa-sync-alt"></i> Refresh
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Clients Table -->
+            <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>NRC Number</th>
+                            <th>Contact</th>
+                            <th>Email</th>
+                            <th>Number Plate</th>
+                            <th>Created</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="clientsTableBody">
+                        <!-- Clients will be loaded here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Trash Section -->
+        <div id="trash" class="content-section">
+            <!-- Sticky Top Section -->
+            <div class="sticky-top-section">
+                <div class="header-bar">
+                    <h2><i class="fas fa-trash"></i> Trash</h2>
+                    <div class="d-flex gap-2">
+                        <button id="backToSavedFromTrashBtn" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Back to Saved
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Industrial Search and Filter for Trash -->
+                <div class="industrial-search-container">
+                    <div class="d-flex align-items-end justify-content-between">
+                        <div class="d-flex align-items-end gap-2">
+                            <button id="searchTrashBtn" class="industrial-btn">
+                                <i class="fas fa-search"></i> Search
+                            </button>
+                            <button id="downloadSelectedTrashBtn" class="industrial-btn d-none">
+                                <i class="fas fa-download"></i> Download Selected
+                            </button>
+                            <button id="recoverSelectedTrashBtn" class="industrial-btn d-none">
+                                <i class="fas fa-undo"></i> Recover Selected
+                            </button>
+                            <button id="deletePermanentSelectedBtn" class="industrial-btn industrial-btn-danger d-none">
+                                <i class="fas fa-times-circle"></i> Delete Permanently
+                            </button>
+                            <button id="clearTrashSearchBtn" class="industrial-btn industrial-btn-secondary d-none">
+                                <i class="fas fa-times"></i> Clear
+                            </button>
+                        </div>
+                        <div class="search-inputs-container d-flex gap-3">
+                            <div class="industrial-form-group">
+                                <label for="trashSearchDate" class="industrial-form-label">Date</label>
+                                <input type="date" class="industrial-form-control" id="trashSearchDate"
+                                    placeholder="Select date">
+                            </div>
+                            <div class="industrial-form-group">
+                                <label for="trashSearchTime" class="industrial-form-label">Time</label>
+                                <input type="time" class="industrial-form-control" id="trashSearchTime"
+                                    placeholder="Select time">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-dark">
+                        <tr>
+                            <th><input type="checkbox" id="selectAllTrashCheckbox" onchange="toggleSelectAllTrash()">
+                            </th>
+                            <th>Filename</th>
+                            <th>Start Time</th>
+                            <th>End Time</th>
+                            <th>Duration</th>
+                            <th>File Size</th>
+                            <th>Availability</th>
+                        </tr>
+                    </thead>
+                    <tbody id="trashVideosTableBody">
+                        <tr>
+                            <td colspan="7" class="text-center text-muted">
+                                <i class="fas fa-spinner fa-spin"></i> Loading trash...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+    <script>
+        // Socket.IO connection
+        const socket = io();
+
+        // Debug Socket.IO connection
+        socket.on('connect', function () {
+            console.log('Socket.IO connected successfully');
+            updateConnectionStatus(true);
+            
+            // Utility function to parse time string (already in local time)
+            function convertToLocalTime(timeString) {
+                if (!timeString) return null;
+                // Time is already stored in local time, so just parse it directly
+                return new Date(timeString);
+            }
+            
+            // Utility function to format time for display
+            function formatLocalTime(date) {
+                if (!date) return '';
+                return date.toLocaleString('en-US', {
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit',
+                    hour12: false
+                });
+            }
+            
+            // Make functions globally available
+            window.convertToLocalTime = convertToLocalTime;
+            window.formatLocalTime = formatLocalTime;
+
+            // Listen to detection updates to drive live Slot Status (free/total)
+            function updateSlotStatusFromDetection(payload) {
+                try {
+                    // Prefer explicit fields
+                    let free = typeof payload.free_slots === 'number' ? payload.free_slots : null;
+                    let total = typeof payload.total_slots === 'number' ? payload.total_slots : null;
+                    // Fallback: derive from slots array if present
+                    if ((free === null || total === null) && Array.isArray(payload.slots)) {
+                        total = payload.slots.length;
+                        free = payload.slots.filter(s => s.is_free === true || s.status === 'free' || s.occupied === false).length;
+                    }
+                    if (free !== null && total !== null) {
+                        // Cache like parking lot does
+                        window.__detectedFree = free;
+                        window.__detectedTotal = total;
+                        const mainEl = document.getElementById('slot-status-display');
+                        if (mainEl) mainEl.textContent = `${free}/${total}`;
+                        const reqEl = document.getElementById('request-slot-status-display');
+                        if (reqEl) reqEl.textContent = `${free}/${total}`;
+                    }
+                } catch (e) {}
+            }
+
+            socket.on('detection_update', updateSlotStatusFromDetection);
+
+            // Also mirror parking lot occupancy_update if emitted
+            socket.on('occupancy_update', function (data) {
+                try {
+                    let free = typeof data.free_slots === 'number' ? data.free_slots : null;
+                    let total = typeof data.total_slots === 'number' ? data.total_slots : null;
+                    if (free !== null && total !== null) {
+                        window.__detectedFree = free;
+                        window.__detectedTotal = total;
+                        const mainEl = document.getElementById('slot-status-display');
+                        if (mainEl) mainEl.textContent = `${free}/${total}`;
+                        const reqEl = document.getElementById('request-slot-status-display');
+                        if (reqEl) reqEl.textContent = `${free}/${total}`;
+                    }
+                } catch (e) {}
+            });
+
+            // Fallback polling same as parking lot would: hit /api/occupancy periodically
+            async function pollOccupancyFallback() {
+                try {
+                    const resp = await fetch('/api/occupancy');
+                    if (!resp.ok) return;
+                    const data = await resp.json();
+                    let free = typeof data.free_slots === 'number' ? data.free_slots : null;
+                    let total = typeof data.total_slots === 'number' ? data.total_slots : null;
+                    if (free !== null && total !== null) {
+                        window.__detectedFree = free;
+                        window.__detectedTotal = total;
+                        const mainEl = document.getElementById('slot-status-display');
+                        if (mainEl) mainEl.textContent = `${free}/${total}`;
+                        const reqEl = document.getElementById('request-slot-status-display');
+                        if (reqEl) reqEl.textContent = `${free}/${total}`;
+                    }
+                } catch (e) {}
+            }
+            setInterval(pollOccupancyFallback, 10000);
+            // initial prime
+            pollOccupancyFallback();
+            // Initialize KPI statuses from server snapshot
+            try {
+                if (window.__lastStatusSnapshot && window.__lastStatusSnapshot.processes) {
+                    const p = window.__lastStatusSnapshot.processes;
+                    setKpi('live', !!p.live);
+                    setKpi('calibration', !!p.calibration);
+                    setKpi('detection', !!p.detection);
+                    setKpi('viewer', !!p.viewer);
+                }
+            } catch (e) {}
+        });
+
+        socket.on('disconnect', function () {
+            console.log('Socket.IO disconnected');
+            updateConnectionStatus(false);
+        });
+
+        socket.on('connect_error', function (error) {
+            console.error('Socket.IO connection error:', error);
+            updateConnectionStatus(false);
+        });
+
+        function updateConnectionStatus(connected) {
+            const statusEl = document.getElementById('connection-status');
+            if (statusEl) {
+                if (connected) {
+                    statusEl.className = 'badge bg-success ms-2';
+                    statusEl.innerHTML = '<i class="fas fa-wifi"></i> Connected';
+                } else {
+                    statusEl.className = 'badge bg-danger ms-2';
+                    statusEl.innerHTML = '<i class="fas fa-wifi-slash"></i> Disconnected';
+                }
+            }
+        }
+        // Navigation
+        function showSection(sectionId) {
+            // Hide all sections
+            document.querySelectorAll('.content-section').forEach(section => {
+                section.classList.remove('active');
+            });
+
+            // Remove active class from all nav links
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('active');
+            });
+
+            // Show selected section
+            document.getElementById(sectionId).classList.add('active');
+
+            // Add active class to clicked nav link
+            event.target.classList.add('active');
+
+            // Handle auto-refresh for parking lot section
+            if (sectionId === 'parking-slots') {
+                startParkingLotAutoRefresh();
+            } else {
+                stopParkingLotAutoRefresh();
+            }
+
+            // Load section data
+            loadSectionData(sectionId);
+        }
+
+        // Load data for each section
+        function loadSectionData(sectionId) {
+            switch (sectionId) {
+                case 'dashboard':
+                    loadDashboardData();
+                    break;
+                case 'parking-slots':
+                    loadSlotsData();
+                    break;
+                case 'reservations':
+                    loadReservationsData();
+                    break;
+                case 'requests':
+                    loadRequestsData();
+                    break;
+                case 'saved-videos':
+                    loadVideos();
+                    break;
+                case 'important-videos':
+                    loadImportantVideos();
+                    break;
+                case 'trash':
+                    loadTrashVideos();
+                    break;
+                case 'clients':
+                    loadClients();
+                    if (!window.clientManagementInitialized) {
+                        initClientManagement();
+                        window.clientManagementInitialized = true;
+                    }
+                    break;
+            }
+        }
+
+        // Load dashboard statistics
+        async function loadDashboardData() {
+            try {
+                // Use calibration for total slots
+                let totalSlots = 0;
+                try {
+                    const calRes = await fetch('/api/calibration/slots');
+                    const cal = await calRes.json();
+                    if (cal && Array.isArray(cal.slots)) totalSlots = cal.slots.length;
+                } catch (e) { }
+
+                // Derive free/occupied from live state
+                const statuses = window.currentSlotStatuses || {};
+                const keys = Object.keys(statuses).filter(k => /^slot_\d+$/.test(k));
+                const occupied = keys.reduce((acc, k) => acc + (statuses[k] === 'occupied' ? 1 : 0), 0);
+                const free = (totalSlots > 0) ? Math.max(totalSlots - occupied, 0) : 0;
+
+                // Update dashboard counters
+                const totalEl = document.getElementById('total-slots');
+                const freeEl = document.getElementById('free-slots');
+                const occEl = document.getElementById('occupied-slots');
+                if (totalEl) totalEl.textContent = totalSlots;
+                if (freeEl) freeEl.textContent = free;
+                if (occEl) occEl.textContent = occupied;
+
+                // Pending requests
+                const requestsResponse = await fetch('/api/requests/pending');
+                const requests = await requestsResponse.json();
+                const pendingEl = document.getElementById('pending-requests');
+                const dashboardPendingEl = document.getElementById('dashboard-pending-requests');
+                if (pendingEl) pendingEl.textContent = requests.length;
+                if (dashboardPendingEl) dashboardPendingEl.textContent = requests.length;
+
+                // Active reservations (Reserved card)
+                try {
+                    const resRes = await fetch('/api/reservations/active');
+                    const reservations = await resRes.json();
+                    const reservedCount = Array.isArray(reservations) ? reservations.length : 0;
+                    const reservedEl = document.getElementById('reserved-slots');
+                    if (reservedEl) reservedEl.textContent = reservedCount;
+                    const parkingReservedEl = document.getElementById('parking-reserved-slots');
+                    if (parkingReservedEl) parkingReservedEl.textContent = reservedCount;
+                    
+                    // Update occupancy stats to include reservations
+                    const occRes = await fetch('/api/occupancy');
+                    const occData = await occRes.json();
+                    if (occData.reserved_slots !== undefined) {
+                        const reservedEl2 = document.getElementById('reserved-slots');
+                        if (reservedEl2) reservedEl2.textContent = occData.reserved_slots;
+                    }
+                } catch (e) { }
+                
+                // Update parking status cards if reservations section is active
+                const reservationsSection = document.getElementById('reservations');
+                if (reservationsSection && reservationsSection.classList.contains('active')) {
+                    try {
+                        const resRes = await fetch('/api/reservations/active');
+                        const reservations = await resRes.json();
+                        updateParkingStatusCards(reservations);
+                    } catch (e) { }
+                }
+                
+                // Update request parking status cards if requests section is active
+                const requestsSection = document.getElementById('requests');
+                if (requestsSection && requestsSection.classList.contains('active')) {
+                    updateRequestParkingStatusCards();
+                }
+
+            } catch (error) {
+                console.error('Error loading dashboard data:', error);
+            }
+        }
+
+        // Load parking slots data
+        async function loadSlotsData() {
+            try {
+                console.log('Loading parking lot data...');
+
+                // Get total slots from calibration data (calibrate_slots.py)
+                let totalSlots = 0;
+                let slotNames = [];
+
+                try {
+                    console.log('Fetching calibration data from /api/calibration/slots...');
+                    const calRes = await fetch('/api/calibration/slots');
+                    const cal = await calRes.json();
+                    console.log('Calibration response:', cal);
+
+                    if (cal && Array.isArray(cal.slots) && cal.slots.length > 0) {
+                        totalSlots = cal.slots.length;
+                        slotNames = cal.slots.map((s, idx) => s.name || `Slot ${idx + 1}`);
+                        console.log(` Loaded ${totalSlots} calibrated slots from calibrate_slots.py`);
+                    } else {
+                        console.log(' No calibration slots found in response');
+                    }
+                } catch (e) {
+                    console.log(' Calibration API error:', e.message);
+                }
+
+                // Fallback to API slots if no calibration data
+                if (!totalSlots) {
+                    console.log(' No slots found from APIs');
+                    const existingCount = document.querySelectorAll('#slot-grid .slot-item').length;
+                    if (existingCount > 0) {
+                        console.log(`Using existing slot count: ${existingCount}`);
+                        totalSlots = existingCount;
+                        slotNames = Array.from({ length: existingCount }, (_, i) => `Slot ${i + 1}`);
+                    } else {
+                        console.log('Falling back to 100 slot default');
+                        totalSlots = 100;
+                        slotNames = Array.from({ length: 100 }, (_, i) => `Slot ${i + 1}`);
+                    }
+                }
+
+                console.log(`Final total slots: ${totalSlots}`);
+
+                // Derive stats from live statuses when available, else assume all free initially
+                let derivedFree = totalSlots;
+                let derivedOccupied = 0;
+                if (window.currentSlotStatuses && Object.keys(window.currentSlotStatuses).length > 0) {
+                    const statuses = window.currentSlotStatuses;
+                    derivedOccupied = Object.values(statuses).reduce((acc, status) => acc + (status === 'occupied' ? 1 : 0), 0);
+                    derivedFree = Math.max(totalSlots - derivedOccupied, 0);
+                }
+                updateParkingSlotsStats(totalSlots, derivedFree, derivedOccupied);
+
+                // Initialize main dashboard counters
+                const totalEl = document.getElementById('total-slots');
+                const freeEl = document.getElementById('free-slots');
+                const occEl = document.getElementById('occupied-slots');
+                if (totalEl && freeEl && occEl) {
+                    totalEl.textContent = totalSlots;
+                    freeEl.textContent = derivedFree;
+                    occEl.textContent = derivedOccupied;
+                }
+
+                // Ensure both sections are in sync
+                recomputeAndRenderStats();
+
+            } catch (error) {
+                console.error('Error loading slots data:', error);
+            }
+        }
+
+        // Auto-refresh parking lot data every 5 seconds
+        let parkingLotAutoRefresh = null;
+
+        function startParkingLotAutoRefresh() {
+            if (parkingLotAutoRefresh) {
+                clearInterval(parkingLotAutoRefresh);
+            }
+            parkingLotAutoRefresh = setInterval(() => {
+                // Only refresh if parking lot section is active
+                if (document.getElementById('parking-slots').classList.contains('active')) {
+                    console.log('Auto-refreshing parking lot data...');
+                    loadSlotsData();
+                }
+            }, 5000); // 5 seconds
+        }
+
+        function stopParkingLotAutoRefresh() {
+            if (parkingLotAutoRefresh) {
+                clearInterval(parkingLotAutoRefresh);
+                parkingLotAutoRefresh = null;
+            }
+        }
+
+        function updateParkingSlotsStats(total, free, occupied) {
+            console.log(`Updating parking lot stats: Total=${total}, Free=${free}, Occupied=${occupied}`);
+
+            const totalEl = document.getElementById('parking-total-slots');
+            const freeEl = document.getElementById('parking-free-slots');
+            const occupiedEl = document.getElementById('parking-occupied-slots');
+
+            if (totalEl) totalEl.textContent = total;
+            if (freeEl) freeEl.textContent = free;
+            if (occupiedEl) occupiedEl.textContent = occupied;
+        }
+
+        function updateSlotStatus(slotName, status) {
+            console.log(`Updating slot ${slotName} to ${status}`);
+
+            // Persist in global cache
+            try {
+                if (!window.currentSlotStatuses) window.currentSlotStatuses = {};
+                window.currentSlotStatuses[slotName] = status;
+            } catch (e) { }
+
+            // Update stats after slot status change
+            recomputeAndRenderStats();
+        }
+
+        function renderSlotGrid() {
+            const grid = document.getElementById('slot-grid');
+            if (!grid) return;
+
+            const slots = Array.isArray(window.slotDetectionData) ? window.slotDetectionData : [];
+            if (!slots.length) {
+                grid.innerHTML = '<div class="text-muted">Waiting for slot detection data...</div>';
+                return;
+            }
+
+            grid.innerHTML = '';
+            slots.forEach(slot => {
+                const slotId = slot.slot_id || slot.id || 'N/A';
+                const slotName = slot.slot_name || `Slot ${slotId}`;
+                const status = slot.status || 'unknown';
+                const plate = slot.license_plate || '';
+                const slotEl = document.createElement('div');
+                slotEl.className = `slot-item ${status === 'occupied' ? 'occupied' : status === 'free' ? 'free' : ''}`;
+                slotEl.innerHTML = `
+                    <div>
+                        <div>${slotName}</div>
+                        <small>${status === 'occupied' ? 'Occupied' : status === 'free' ? 'Free' : 'Unknown'}</small>
+                        ${plate ? `<span class="slot-plate">${plate}</span>` : ''}
+                    </div>
+                `;
+                grid.appendChild(slotEl);
+            });
+        }
+
+        // Load reservations data
+        async function loadReservationsData() {
+            try {
+                const response = await fetch('/api/reservations/active');
+                const reservations = await response.json();
+
+                // Update status cards
+                updateParkingStatusCards(reservations);
+
+                const tableBody = document.getElementById('reservations-table');
+                tableBody.innerHTML = '';
+
+                reservations.forEach(reservation => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${reservation.reservation_id}</td>
+                        <td class="d-none"><span class="badge bg-primary">${reservation.slot_id || 'Auto'}</span></td>
+                        <td class="d-none">${reservation.client_id}</td>
+                        <td class="d-none">${reservation.request_id}</td>
+                        <td>${reservation.client_name}</td>
+                        <td>${reservation.number_plate}</td>
+                        <td>${formatLocalTime(convertToLocalTime(reservation.start_time))}</td>
+                        <td>${formatLocalTime(convertToLocalTime(reservation.end_time))}</td>
+                        <td>${reservation.duration}h</td>
+                        <td><span class="status-badge status-${reservation.status}">${reservation.status}</span></td>
+                        <td>${formatLocalTime(convertToLocalTime(reservation.created_at))}</td>
+                        <td>
+                            <button class="btn-action btn-cancel" onclick="cancelReservation(${reservation.reservation_id})">
+                                Cancel
+                            </button>
+                        </td>
+                    `;
+                    tableBody.appendChild(row);
+                });
+
+            } catch (error) {
+                console.error('Error loading reservations data:', error);
+            }
+        }
+
+        // Load requests data
+        async function loadRequestsData() {
+            try {
+                const response = await fetch('/api/requests');
+                const requests = await response.json();
+
+                // Update request status cards
+                updateRequestParkingStatusCards();
+
+                const tableBody = document.getElementById('requests-table');
+                tableBody.innerHTML = '';
+
+                requests.forEach(req => {
+                    const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${req.request_id}</td>
+                    <td class="d-none">${req.name}</td>
+                    <td>${req.number_plate}</td>
+                    <td>${req.duration}h</td>
+                    <td>${req.start_time ? formatLocalTime(convertToLocalTime(req.start_time)).split(',')[0] : '-'}</td>
+                    <td>${req.start_time ? formatLocalTime(convertToLocalTime(req.start_time)).split(',')[1].trim() : '-'}</td>
+                    <td><span class="status-badge status-${req.payment_status}">${req.payment_status}</span></td>
+                    <td><span class="status-badge status-${req.status}">${req.status}</span></td>
+                    <td>${formatLocalTime(convertToLocalTime(req.created_at))}</td>
+                    <td>
+                        ${req.status === 'pending' ? `
+                            <button class="btn-action btn-accept" onclick="acceptRequest(${req.request_id})">
+                                Accept
+                            </button>
+                            <button class="btn-action btn-reject" onclick="rejectRequest(${req.request_id})">
+                                Reject
+                            </button>
+                        ` : ''}
+                    </td>
+                `;
+                    tableBody.appendChild(row);
+                });
+
+                // Update dashboard pending requests count
+                const pendingCount = requests.filter(req => req.status === 'pending').length;
+                const dashboardPendingEl = document.getElementById('dashboard-pending-requests');
+                if (dashboardPendingEl) dashboardPendingEl.textContent = pendingCount;
+
+            } catch (error) {
+                console.error('Error loading requests data:', error);
+            }
+        }
+
+        // Action functions
+        async function acceptRequest(requestId) {
+            if (confirm('Accept this reservation request?')) {
+                try {
+                    const response = await fetch(`/api/requests/${requestId}/accept`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ slot_id: null, mark_paid: true }) // Auto-assign slot and mark paid
+                    });
+
+                    if (response.ok) {
+                        const result = await response.json();
+                        loadRequestsData();
+                        loadReservationsData();
+                        loadDashboardData();
+                        alert('Request accepted successfully!');
+                        
+                        // Get the actual reservation data to emit correct times
+                        if (result.reservation_id) {
+                            // Emit Socket.IO event to notify client with actual reservation times
+                            socket.emit('request_accepted', {
+                                request_id: requestId,
+                                reservation_id: result.reservation_id,
+                                message: 'Request accepted successfully'
+                            });
+                        }
+                    } else {
+                        alert('Error accepting request');
+                    }
+                } catch (error) {
+                    console.error('Error accepting request:', error);
+                    alert('Error accepting request');
+                }
+            }
+        }
+
+        async function rejectRequest(requestId) {
+            if (confirm('Reject this reservation request?')) {
+                try {
+                    const response = await fetch(`/api/requests/${requestId}/reject`, {
+                        method: 'POST'
+                    });
+
+                    if (response.ok) {
+                        loadRequestsData();
+                        loadDashboardData();
+                        alert('Request rejected');
+                        
+                        // Emit Socket.IO event to notify client
+                        socket.emit('request_rejected', {
+                            request_id: requestId
+                        });
+                    } else {
+                        alert('Error rejecting request');
+                    }
+                } catch (error) {
+                    console.error('Error rejecting request:', error);
+                    alert('Error rejecting request');
+                }
+            }
+        }
+
+        async function cancelReservation(reservationId) {
+            if (confirm('Cancel this reservation?')) {
+                try {
+                    const response = await fetch(`/api/reservations/${reservationId}/cancel`, {
+                        method: 'POST'
+                    });
+
+                    if (response.ok) {
+                        loadReservationsData();
+                        loadDashboardData();
+                        alert('Reservation cancelled');
+                    } else {
+                        alert('Error cancelling reservation');
+                    }
+                } catch (error) {
+                    console.error('Error cancelling reservation:', error);
+                    alert('Error cancelling reservation');
+                }
+            }
+        }
+
+        async function processFIFO() {
+            if (confirm('Process all pending requests using FIFO algorithm?')) {
+                try {
+                    const response = await fetch('/api/requests/pending');
+                    const requests = await response.json();
+
+                    for (const request of requests) {
+                        await acceptRequest(request.request_id);
+                    }
+
+                    alert('FIFO processing completed!');
+                } catch (error) {
+                    console.error('Error processing FIFO:', error);
+                    alert('Error processing FIFO');
+                }
+            }
+        }
+
+        // Refresh functions
+        function refreshSlots() {
+            loadSlotsData();
+        }
+
+        function debugParkingLot() {
+            console.log('=== PARKING LOT DEBUG ===');
+
+            // Check if elements exist
+            const totalEl = document.getElementById('parking-total-slots');
+            const freeEl = document.getElementById('parking-free-slots');
+            const occupiedEl = document.getElementById('parking-occupied-slots');
+
+            console.log('Elements found:');
+            console.log('- Total slots element:', totalEl ? '✅' : '❌');
+            console.log('- Free slots element:', freeEl ? '✅' : '❌');
+            console.log('- Occupied slots element:', occupiedEl ? '✅' : '❌');
+
+            if (totalEl) console.log('- Total slots value:', totalEl.textContent);
+            if (freeEl) console.log('- Free slots value:', freeEl.textContent);
+            if (occupiedEl) console.log('- Occupied slots value:', occupiedEl.textContent);
+
+            // Test API endpoints
+            console.log('Testing API endpoints...');
+
+            fetch('/api/calibration/slots')
+                .then(res => res.json())
+                .then(data => {
+                    console.log('Calibration API response:', data);
+                })
+                .catch(err => {
+                    console.log('Calibration API error:', err);
+                });
+
+            fetch('/api/slots')
+                .then(res => res.json())
+                .then(data => {
+                    console.log('Slots API response:', data);
+                })
+                .catch(err => {
+                    console.log('Slots API error:', err);
+                });
+
+            // Test with sample data
+            console.log('Testing with sample data...');
+            updateParkingSlotsStats(4, 2, 2);
+
+            console.log('=== END DEBUG ===');
+        }
+
+
+        // Update parking status cards
+        async function updateParkingStatusCards(reservations) {
+            try {
+                // Get occupancy stats
+                const occupancyResponse = await fetch('/api/occupancy');
+                const occupancyData = await occupancyResponse.json();
+                
+                // Get next available time
+                const nextTimeResponse = await fetch('/api/next-available-time');
+                const nextTimeData = await nextTimeResponse.json();
+                
+                // Update slot status card (prefer live detection values if present)
+                const slotStatusEl = document.getElementById('slot-status-display');
+                if (typeof window.__detectedFree === 'number' && typeof window.__detectedTotal === 'number') {
+                    slotStatusEl.textContent = `${window.__detectedFree}/${window.__detectedTotal}`;
+                } else {
+                    slotStatusEl.textContent = `${occupancyData.free_slots}/${occupancyData.total_slots}`;
+                }
+                
+                // Update active reservations count
+                document.getElementById('active-reservations-count').textContent = 
+                    reservations.length;
+                
+                const nextFreeSlots = occupancyData.total_slots - reservations.length;
+                // Note: Next Free Slots timer is handled by the countdown; count display removed
+                
+                // Build a serial queue of upcoming end times (Reservations section)
+                const nextTimerElement = document.getElementById('next-free-slots-timer');
+                try {
+                    const now = new Date();
+                    const endQueue = (reservations || [])
+                        .map(r => convertToLocalTime(r.end_time))
+                        .filter(d => d && d > now)
+                        .sort((a,b) => a - b);
+                    window.__nextEndQueue = endQueue; // global queue
+                } catch (e) {
+                    window.__nextEndQueue = [];
+                }
+                if (!window.__countdownHeartbeat) {
+                    window.__countdownHeartbeat = setInterval(() => {
+                        const target = (window.__nextEndQueue && window.__nextEndQueue.length) ? window.__nextEndQueue[0] : null;
+                        if (!target) {
+                            if (nextTimerElement) nextTimerElement.textContent = '--:--:--';
+                        } else {
+                            const now = new Date();
+                            let diff = Math.max(0, target - now);
+                            if (diff <= 0) {
+                                // remove finished target and move to next
+                                window.__nextEndQueue.shift();
+                            } else {
+                                const h = String(Math.floor(diff / 3600000)).padStart(2,'0');
+                                diff %= 3600000;
+                                const m = String(Math.floor(diff / 60000)).padStart(2,'0');
+                                diff %= 60000;
+                                const s = String(Math.floor(diff / 1000)).padStart(2,'0');
+                                if (nextTimerElement) nextTimerElement.textContent = `${h}:${m}:${s}`;
+                            }
+                        }
+                    }, 1000);
+                }
+                
+                // Update occupancy rate
+                const occupancyRate = Math.round(occupancyData.occupancy_rate);
+                document.getElementById('occupancy-rate').textContent = `${occupancyRate}%`;
+                
+            } catch (error) {
+                console.error('Error updating parking status cards:', error);
+            }
+        }
+
+        // Update request parking status cards
+        async function updateRequestParkingStatusCards() {
+            try {
+                // Get occupancy stats
+                const occupancyResponse = await fetch('/api/occupancy');
+                const occupancyData = await occupancyResponse.json();
+                
+                // Get next available time
+                const nextTimeResponse = await fetch('/api/next-available-time');
+                const nextTimeData = await nextTimeResponse.json();
+                
+                // Get active reservations
+                const reservationsResponse = await fetch('/api/reservations/active');
+                const reservations = await reservationsResponse.json();
+                
+                // Update slot status card (prefer live detection values if present)
+                const reqSlotStatusEl = document.getElementById('request-slot-status-display');
+                if (typeof window.__detectedFree === 'number' && typeof window.__detectedTotal === 'number') {
+                    reqSlotStatusEl.textContent = `${window.__detectedFree}/${window.__detectedTotal}`;
+                } else {
+                    reqSlotStatusEl.textContent = `${occupancyData.free_slots}/${occupancyData.total_slots}`;
+                }
+                
+                // Update active reservations count
+                document.getElementById('request-active-reservations-count').textContent = 
+                    reservations.length;
+                
+                // Note: Next Free Slots timer is handled by the countdown; count display removed
+                
+                // Build a serial queue for Requests section as well
+                const reqNextTimerElement = document.getElementById('request-next-free-slots-timer');
+                try {
+                    const now2 = new Date();
+                    const endQueue2 = (reservations || [])
+                        .map(r => convertToLocalTime(r.end_time))
+                        .filter(d => d && d > now2)
+                        .sort((a,b) => a - b);
+                    window.__reqNextEndQueue = endQueue2;
+                } catch (e) {
+                    window.__reqNextEndQueue = [];
+                }
+                if (!window.__reqCountdownHeartbeat) {
+                    window.__reqCountdownHeartbeat = setInterval(() => {
+                        const target2 = (window.__reqNextEndQueue && window.__reqNextEndQueue.length) ? window.__reqNextEndQueue[0] : null;
+                        if (!target2) {
+                            if (reqNextTimerElement) reqNextTimerElement.textContent = '--:--:--';
+                        } else {
+                            const now = new Date();
+                            let diff = Math.max(0, target2 - now);
+                            if (diff <= 0) {
+                                window.__reqNextEndQueue.shift();
+                            } else {
+                                const h = String(Math.floor(diff / 3600000)).padStart(2,'0');
+                                diff %= 3600000;
+                                const m = String(Math.floor(diff / 60000)).padStart(2,'0');
+                                diff %= 60000;
+                                const s = String(Math.floor(diff / 1000)).padStart(2,'0');
+                                if (reqNextTimerElement) reqNextTimerElement.textContent = `${h}:${m}:${s}`;
+                            }
+                        }
+                    }, 1000);
+                }
+                
+                // Update occupancy rate
+                const occupancyRate = Math.round(occupancyData.occupancy_rate);
+                document.getElementById('request-occupancy-rate').textContent = `${occupancyRate}%`;
+                
+            } catch (error) {
+                console.error('Error updating request parking status cards:', error);
+            }
+        }
+
+        function refreshReservations() {
+            loadReservationsData();
+        }
+
+        function refreshRequests() {
+            loadRequestsData();
+        }
+
+        // Auto-refresh every 10 seconds for faster updates
+        setInterval(() => {
+            const activeSection = document.querySelector('.content-section.active');
+            if (activeSection) {
+                loadSectionData(activeSection.id);
+            }
+        }, 10000);
+
+        // Socket.IO event handlers for real-time updates
+        socket.on('occupancy_update', function (data) {
+            console.log('Received occupancy_update:', data);
+            // Update stats from server data
+            recomputeAndRenderStats();
+            if (data) {
+                updateParkingSlotsStats(data.total_slots, data.free_slots, data.occupied_slots);
+            }
+        });
+
+        socket.on('calibration_update', function (data) {
+            console.log('Received calibration_update:', data);
+            // Reload slots data when calibration changes
+            loadSlotsData();
+        });
+
+        // Receive fine-grained slot updates from detection (prototype_client.py)
+        // Store current slot statuses - use global variable for consistency
+        window.currentSlotStatuses = window.currentSlotStatuses || {};
+
+        socket.on('detection_update', function (payload) {
+            try {
+                console.log('Received detection_update from detection.py:', payload);
+
+                if (payload && Array.isArray(payload.slots) && payload.slots.length > 0) {
+                    window.slotDetectionData = payload.slots;
+                    payload.slots.forEach(slot => {
+                        if (slot.slot_name && slot.status) {
+                            updateSlotStatus(slot.slot_name, slot.status);
+                        }
+                    });
+                    renderSlotGrid();
+                }
+
+                if (typeof payload.free_slots === 'number' && typeof payload.total_slots === 'number') {
+                    window.__detectedFree = payload.free_slots;
+                    window.__detectedTotal = payload.total_slots;
+                }
+            } catch (e) {
+                console.error('detection_update handling error:', e);
+            }
+        });
+
+        socket.on('request_processed', function (data) {
+            // Refresh relevant sections
+            loadRequestsData();
+            loadReservationsData();
+            loadDashboardData();
+
+            // Show notification
+            showNotification(`Request ${data.request_id} ${data.action} via ${data.method}`, 'success');
+        });
+
+
+        // Show notification
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = `alert alert-${type} alert-dismissible fade show position-fixed`;
+            notification.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+            notification.innerHTML = `
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            document.body.appendChild(notification);
+
+            // Auto-remove after 5 seconds
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.parentNode.removeChild(notification);
+                }
+            }, 5000);
+        }
+
+        // Control functions with toggle functionality
+        function toggleLive() {
+            const btn = document.getElementById('live-btn');
+            const isRunning = btn.classList.contains('running');
+
+            if (isRunning) {
+                socket.emit('stop_live');
+                log('Stopping live stream...', 'info');
+            } else {
+                socket.emit('start_live');
+                log('Starting live stream...', 'info');
+            }
+        }
+
+        function toggleCalibration() {
+            const btn = document.getElementById('calibration-btn');
+            const isRunning = btn.classList.contains('running');
+
+            if (isRunning) {
+                socket.emit('stop_calibration');
+                log('Stopping calibration...', 'info');
+            } else {
+                socket.emit('start_calibration');
+                log('Starting calibration...', 'info');
+            }
+        }
+
+        function toggleDetection() {
+            const btn = document.getElementById('detection-btn');
+            const isRunning = btn.classList.contains('running');
+
+            if (isRunning) {
+                socket.emit('stop_detection');
+                log('Stopping detection...', 'info');
+            } else {
+                socket.emit('start_detection');
+                log('Starting detection...', 'info');
+            }
+        }
+
+        function toggleViewer() {
+            const btn = document.getElementById('viewer-btn');
+            const isRunning = btn.classList.contains('running');
+
+            if (isRunning) {
+                socket.emit('stop_viewer');
+                log('Stopping viewer...', 'info');
+            } else {
+                socket.emit('start_viewer');
+                log('Starting viewer...', 'info');
+            }
+        }
+
+        function refreshControls() {
+            // Refresh control status
+            loadSectionData('controls');
+        }
+
+        // Logging function
+        function log(message, type = 'info') {
+            const logContainer = document.getElementById('log-container');
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = document.createElement('div');
+            logEntry.className = 'log-entry';
+            logEntry.innerHTML = `
+                <span class="log-timestamp">[${timestamp}]</span>
+                <span class="log-${type}">${message}</span>
+            `;
+            logContainer.appendChild(logEntry);
+            logContainer.scrollTop = logContainer.scrollHeight;
+        }
+
+        // Clear logs
+        function clearLogs() {
+            document.getElementById('log-container').innerHTML = '';
+        }
+
+        // Update status indicators
+        function updateStatus(elementId, running) {
+            const indicator = document.getElementById(elementId);
+            if (indicator) {
+                if (running) {
+                    indicator.className = 'status-indicator status-running';
+                } else {
+                    indicator.className = 'status-indicator status-stopped';
+                }
+            }
+        }
+
+        // Update button state
+        function updateButtonState(buttonId, running) {
+            const btn = document.getElementById(buttonId);
+            if (btn) {
+                const icon = btn.querySelector('i');
+                const text = btn.querySelector('.btn-text');
+
+                if (running) {
+                    btn.classList.add('running');
+                    icon.className = 'fas fa-stop';
+                    text.textContent = 'STOP';
+                } else {
+                    btn.classList.remove('running');
+                    icon.className = 'fas fa-play';
+                    text.textContent = 'START';
+                }
+            }
+        }
+
+        // Socket.IO event handlers for controls
+        socket.on('status', function (payload) {
+            // Save snapshot on connect
+            window.__lastStatusSnapshot = payload;
+            if (payload && payload.processes) {
+                const p = payload.processes;
+                setKpi('live', !!p.live);
+                setKpi('calibration', !!p.calibration);
+                setKpi('detection', !!p.detection);
+                setKpi('viewer', !!p.viewer);
+            }
+        });
+
+        socket.on('live_status', function (status) {
+            updateStatus('live-status', status.running);
+            updateButtonState('live-btn', status.running);
+            log(`Live stream ${status.running ? 'started' : 'stopped'}`, status.running ? 'success' : 'info');
+            setKpi('live', !!status.running);
+        });
+
+        socket.on('calibration_status', function (status) {
+            updateStatus('calibration-status', status.running);
+            updateButtonState('calibration-btn', status.running);
+            log(`Calibration ${status.running ? 'started' : 'stopped'}`, status.running ? 'success' : 'info');
+            setKpi('calibration', !!status.running);
+        });
+
+        socket.on('detection_status', function (status) {
+            updateStatus('detection-status', status.running);
+            updateButtonState('detection-btn', status.running);
+            log(`Detection ${status.running ? 'started' : 'stopped'}`, status.running ? 'success' : 'info');
+            setKpi('detection', !!status.running);
+        });
+
+        socket.on('viewer_status', function (status) {
+            updateStatus('viewer-status', status.running);
+            updateButtonState('viewer-btn', status.running);
+            log(`Viewer ${status.running ? 'started' : 'stopped'}`, status.running ? 'success' : 'info');
+            setKpi('viewer', !!status.running);
+        });
+
+        socket.on('live_frame', function (data) {
+            const frameImg = document.getElementById('live-frame');
+            const noStream = document.getElementById('no-stream');
+            const streamIndicator = document.getElementById('stream-indicator');
+            const streamStatusText = document.getElementById('stream-status-text');
+
+            if (data.frame) {
+                frameImg.src = data.frame;
+                frameImg.style.display = 'block';
+                noStream.style.display = 'none';
+                streamIndicator.classList.add('online');
+                streamStatusText.textContent = 'ONLINE';
+            } else {
+                frameImg.style.display = 'none';
+                noStream.style.display = 'block';
+                streamIndicator.classList.remove('online');
+                streamStatusText.textContent = 'OFFLINE';
+            }
+        });
+
+        socket.on('calibration_saved', function (data) {
+            if (data.ok) {
+                log('Calibration saved successfully', 'success');
+            } else {
+                log(`Calibration save failed: ${data.error}`, 'error');
+            }
+        });
+
+        socket.on('calibration_click', function (data) {
+            log(`Calibration click: ${data.x}, ${data.y}`, 'info');
+        });
+
+        // Initialize status indicators
+        updateStatus('live-status', false);
+        updateStatus('calibration-status', false);
+        updateStatus('detection-status', false);
+        updateStatus('viewer-status', false);
+
+        function setKpi(name, on) {
+            const map = {
+                live: 'kpi-live',
+                calibration: 'kpi-calibration',
+                detection: 'kpi-detection',
+                viewer: 'kpi-viewer',
+            };
+            const id = map[name];
+            const el = id ? document.getElementById(id) : null;
+            if (!el) return;
+            if (on) {
+                el.className = 'badge bg-success';
+                el.textContent = 'On';
+            } else {
+                el.className = 'badge bg-secondary';
+                el.textContent = 'Off';
+            }
+        }
+
+        // Load initial data
+        loadDashboardData();
+
+        // Video Management Variables
+        let videos = [];
+        let currentVideoId = null;
+        let isShowingImportant = false;
+        let isSearchActive = false;
+        let selectedVideos = new Set();
+        let trashVideos = [];
+
+        // Video Management Functions
+        function loadVideos() {
+            const searchDate = document.getElementById('videoSearchDate').value;
+            const searchTime = document.getElementById('videoSearchTime').value;
+
+            console.log('Loading videos with search criteria:', { searchDate, searchTime });
+
+            let url = '/api/videos';
+            const params = new URLSearchParams();
+
+            if (searchDate) {
+                params.append('start_date', searchDate);
+                params.append('end_date', searchDate);
+            }
+
+            if (searchTime) {
+                params.append('search_time', searchTime);
+            }
+
+            if (params.toString()) {
+                url += '?' + params.toString();
+            }
+
+            console.log('Fetching from URL:', url);
+
+            fetch(url)
+                .then(response => {
+                    console.log('Response status:', response.status);
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Received data:', data);
+                    if (data.error) {
+                        showAlert('error', data.error);
+                        return;
+                    }
+
+                    videos = data;
+                    renderVideosTable();
+                })
+                .catch(error => {
+                    console.error('Error loading videos:', error);
+                    showAlert('error', 'Failed to load videos');
+                });
+        }
+
+        function loadImportantVideos() {
+            const searchDate = document.getElementById('importantVideoSearchDate').value;
+            const searchTime = document.getElementById('importantVideoSearchTime').value;
+
+            console.log('Loading important videos with search criteria:', { searchDate, searchTime });
+
+            let url = '/api/videos/pinned';
+            const params = new URLSearchParams();
+
+            if (searchDate) {
+                params.append('start_date', searchDate);
+                params.append('end_date', searchDate);
+            }
+
+            if (searchTime) {
+                params.append('search_time', searchTime);
+            }
+
+            if (params.toString()) {
+                url += '?' + params.toString();
+            }
+
+            console.log('Fetching important videos from URL:', url);
+
+            fetch(url)
+                .then(response => {
+                    console.log('Important videos response status:', response.status);
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Received important videos data:', data);
+                    if (data.error) {
+                        showAlert('error', data.error);
+                        return;
+                    }
+
+                    videos = data;
+                    renderImportantVideosTable();
+                })
+                .catch(error => {
+                    console.error('Error loading important videos:', error);
+                    showAlert('error', 'Failed to load important videos');
+                });
+        }
+
+        function renderVideosTable() {
+            const tbody = document.getElementById('videosTableBody');
+
+            if (videos.length === 0) {
+                const searchDate = document.getElementById('videoSearchDate').value;
+                const searchTime = document.getElementById('videoSearchTime').value;
+                let message = 'No videos found';
+
+                if (searchDate || searchTime) {
+                    message = `No videos found matching your search criteria`;
+                    if (searchDate) message += ` (Date: ${searchDate})`;
+                    if (searchTime) message += ` (Time: ${searchTime})`;
+                }
+
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="8" class="text-center text-muted">
+                            <i class="fas fa-video-slash"></i> ${message}
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = videos.map(video => `
+                <tr>
+                    <td>
+                        <input type="checkbox" class="video-checkbox" value="${video.id}" ${selectedVideos.has(video.id) ? 'checked' : ''} onchange="toggleVideoSelection(${video.id})">
+                    </td>
+                    <td>
+                        <i class="fas fa-video text-primary"></i>
+                        ${video.filename}
+                    </td>
+                    <td>${formatDateTime(video.start_time)}</td>
+                    <td>${formatDateTime(video.end_time)}</td>
+                    <td>${video.duration_minutes} min</td>
+                    <td>${video.file_size_mb} MB</td>
+                    <td>
+                        <span class="badge ${video.file_exists ? 'bg-success' : 'bg-danger'}">
+                            ${video.file_exists ? 'Available' : 'Missing'}
+                        </span>
+                    </td>
+                    <td>
+                        <div class="btn-group btn-group-sm">
+                            <button class="btn btn-outline-primary" onclick="downloadVideo(${video.id})" 
+                                    ${!video.file_exists ? 'disabled' : ''}>
+                                <i class="fas fa-download"></i>
+                            </button>
+                            <button class="btn ${video.is_pinned ? 'btn-outline-warning' : 'btn-outline-warning'}" 
+                                    onclick="pinVideo(${video.id})" 
+                                    ${video.is_pinned ? 'disabled' : ''}>
+                                <i class="fas fa-thumbtack ${video.is_pinned ? 'text-dark' : ''}"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+
+            // After render: sync header checkbox and bulk action visibility
+            const videoCheckboxes = document.querySelectorAll('.video-checkbox');
+            const checkedCount = document.querySelectorAll('.video-checkbox:checked').length;
+            const selectAllCheckbox = document.getElementById('selectAllCheckbox');
+            const deleteAllBtn = document.getElementById('deleteAllVideosBtn');
+            const downloadSelBtn = document.getElementById('downloadSelectedVideosBtn');
+            const pinSelBtn = document.getElementById('pinSelectedVideosBtn');
+
+            if (selectAllCheckbox) {
+                selectAllCheckbox.checked = videoCheckboxes.length > 0 && checkedCount === videoCheckboxes.length;
+                selectAllCheckbox.indeterminate = checkedCount > 0 && checkedCount < videoCheckboxes.length;
+            }
+            const anySelected = checkedCount > 0;
+            if (deleteAllBtn) deleteAllBtn.classList.toggle('d-none', !anySelected);
+            if (downloadSelBtn) downloadSelBtn.classList.toggle('d-none', !anySelected);
+            if (pinSelBtn) pinSelBtn.classList.toggle('d-none', !anySelected);
+        }
+
+        function renderImportantVideosTable() {
+            const tbody = document.getElementById('importantVideosTableBody');
+
+            if (videos.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="8" class="text-center text-muted">
+                            <i class="fas fa-thumbtack"></i> No important videos found
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = videos.map(video => `
+                <tr>
+                    <td>
+                        <input type="checkbox" class="important-video-checkbox" value="${video.id}" ${selectedVideos.has(video.id) ? 'checked' : ''} onchange="toggleImportantVideoSelection(${video.id})">
+                    </td>
+                    <td>
+                        <i class="fas fa-video text-primary"></i>
+                        ${video.filename}
+                    </td>
+                    <td>${formatDateTime(video.start_time)}</td>
+                    <td>${formatDateTime(video.end_time)}</td>
+                    <td>${video.duration_minutes} min</td>
+                    <td>${video.file_size_mb} MB</td>
+                    <td>
+                        <span class="badge ${video.file_exists ? 'bg-success' : 'bg-danger'}">
+                            ${video.file_exists ? 'Available' : 'Missing'}
+                        </span>
+                    </td>
+                    <td>
+                        <div class="btn-group btn-group-sm">
+                            <button class="btn btn-outline-primary" onclick="downloadVideo(${video.id})" 
+                                    ${!video.file_exists ? 'disabled' : ''}>
+                                <i class="fas fa-download"></i>
+                            </button>
+                            <button class="btn btn-outline-secondary" onclick="unpinVideo(${video.id})">
+                                <i class="fas fa-thumbtack"></i> Unpin
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+
+            // After render: sync header checkbox and bulk action visibility for important videos
+            const impCheckboxes = document.querySelectorAll('.important-video-checkbox');
+            const impCheckedCount = document.querySelectorAll('.important-video-checkbox:checked').length;
+            const selectAllImp = document.getElementById('selectAllImportantCheckbox');
+            const deleteAllImpBtn = document.getElementById('deleteAllImportantVideosBtn');
+            const downloadSelImpBtn = document.getElementById('downloadSelectedImportantBtn');
+            const unpinSelBtn = document.getElementById('unpinSelectedVideosBtn');
+
+            if (selectAllImp) {
+                selectAllImp.checked = impCheckboxes.length > 0 && impCheckedCount === impCheckboxes.length;
+                selectAllImp.indeterminate = impCheckedCount > 0 && impCheckedCount < impCheckboxes.length;
+            }
+            const anyImpSelected = impCheckedCount > 0;
+            if (deleteAllImpBtn) deleteAllImpBtn.classList.toggle('d-none', !anyImpSelected);
+            if (downloadSelImpBtn) downloadSelImpBtn.classList.toggle('d-none', !anyImpSelected);
+            if (unpinSelBtn) unpinSelBtn.classList.toggle('d-none', !anyImpSelected);
+        }
+
+        function formatDateTime(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleString();
+        }
+
+        function startRecording() {
+            fetch('/api/videos/recording/start', { method: 'POST' })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        showAlert('error', data.error);
+                    } else {
+                        showAlert('success', data.message);
+                        updateRecordingStatus();
+                    }
+                })
+                .catch(error => {
+                    console.error('Error starting recording:', error);
+                    showAlert('error', 'Failed to start recording');
+                });
+        }
+
+        function stopRecording() {
+            fetch('/api/videos/recording/stop', { method: 'POST' })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        showAlert('error', data.error);
+                    } else {
+                        showAlert('success', data.message);
+                        updateRecordingStatus();
+                        loadVideos(); // Auto-refresh after stopping
+                    }
+                })
+                .catch(error => {
+                    console.error('Error stopping recording:', error);
+                    showAlert('error', 'Failed to stop recording');
+                });
+        }
+
+        function updateRecordingStatus() {
+            fetch('/api/videos/recording/status')
+                .then(response => response.json())
+                .then(data => {
+                    updateRecordingUI(data);
+                })
+                .catch(error => {
+                    console.error('Error getting recording status:', error);
+                });
+        }
+
+        function updateRecordingUI(data) {
+            const statusDiv = document.getElementById('recordingStatus');
+            const startBtn = document.getElementById('startRecordingBtn');
+            const stopBtn = document.getElementById('stopRecordingBtn');
+            const recordingText = document.getElementById('recordingText');
+
+            if (data.is_recording) {
+                statusDiv.classList.remove('d-none');
+                startBtn.disabled = true;
+                stopBtn.disabled = false;
+
+                if (data.recording_info) {
+                    const duration = Math.floor(data.recording_info.duration);
+                    const minutes = Math.floor(duration / 60);
+                    const seconds = duration % 60;
+                    recordingText.textContent = `Recording: ${data.recording_info.filename} (${minutes}:${seconds.toString().padStart(2, '0')})`;
+                } else {
+                    recordingText.textContent = 'Recording in progress...';
+                }
+            } else {
+                statusDiv.classList.add('d-none');
+                startBtn.disabled = false;
+                stopBtn.disabled = true;
+            }
+        }
+
+        function downloadVideo(videoId) {
+            window.open(`/api/videos/${videoId}/download`, '_blank');
+        }
+
+        function downloadSelectedVideos() {
+            const ids = Array.from(selectedVideos);
+            if (ids.length === 0) {
+                showAlert('warning', 'Please select videos to download');
+                return;
+            }
+
+            // Create a reusable hidden anchor to trigger downloads sequentially
+            let hiddenAnchor = document.getElementById('bulk-download-anchor');
+            if (!hiddenAnchor) {
+                hiddenAnchor = document.createElement('a');
+                hiddenAnchor.id = 'bulk-download-anchor';
+                hiddenAnchor.style.display = 'none';
+                document.body.appendChild(hiddenAnchor);
+            }
+
+            const triggerDownload = (videoId) => {
+                hiddenAnchor.href = `/api/videos/${videoId}/download`;
+                hiddenAnchor.click();
+            };
+
+            // Fire downloads with a small delay to avoid popup blockers/throttling
+            let delay = 0;
+            const stepMs = 400;
+            ids.forEach((id) => {
+                setTimeout(() => triggerDownload(id), delay);
+                delay += stepMs;
+            });
+        }
+
+        function pinVideo(videoId) {
+            console.log('Pinning video ID:', videoId);
+            fetch(`/api/videos/${videoId}/pin`, { method: 'POST' })
+                .then(response => {
+                    console.log('Pin response status:', response.status);
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Pin response data:', data);
+                    if (data.error) {
+                        if (response.status === 400) {
+                            showAlert('warning', data.error); // Already pinned
+                        } else {
+                            showAlert('error', data.error);
+                        }
+                    } else {
+                        showAlert('success', data.message);
+                        loadVideos(); // Refresh the table
+                    }
+                })
+                .catch(error => {
+                    console.error('Error pinning video:', error);
+                    showAlert('error', 'Failed to pin video');
+                });
+        }
+
+        function unpinVideo(videoId) {
+            console.log('Unpinning video ID:', videoId);
+            fetch(`/api/videos/${videoId}/unpin`, { method: 'POST' })
+                .then(response => {
+                    console.log('Unpin response status:', response.status);
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Unpin response data:', data);
+                    if (data.error) {
+                        showAlert('error', data.error);
+                    } else {
+                        showAlert('success', data.message);
+                        loadImportantVideos(); // Refresh the important videos table
+                    }
+                })
+                .catch(error => {
+                    console.error('Error unpinning video:', error);
+                    showAlert('error', 'Failed to unpin video');
+                });
+        }
+
+        function pinSelectedVideos() {
+            const ids = Array.from(selectedVideos);
+            if (ids.length === 0) {
+                showAlert('warning', 'Please select videos to pin');
+                return;
+            }
+            Promise.all(ids.map(id => fetch(`/api/videos/${id}/pin`, { method: 'POST' }).then(r => r.json())))
+                .then(results => {
+                    const successCount = results.filter(r => r && r.success).length;
+                    const alreadyPinned = results.filter(r => r && r.error).length;
+                    if (successCount > 0) showAlert('success', `Pinned ${successCount} video(s)`);
+                    if (alreadyPinned > 0) showAlert('warning', `${alreadyPinned} already pinned`);
+                    loadVideos();
+                })
+                .catch(err => {
+                    console.error('Bulk pin error:', err);
+                    showAlert('error', 'Failed to pin some videos');
+                });
+        }
+
+        function unpinSelectedVideos() {
+            const ids = Array.from(selectedVideos);
+            if (ids.length === 0) {
+                showAlert('warning', 'Please select videos to unpin');
+                return;
+            }
+            Promise.all(ids.map(id => fetch(`/api/videos/${id}/unpin`, { method: 'POST' }).then(r => r.json())))
+                .then(results => {
+                    const successCount = results.filter(r => r && r.success).length;
+                    if (successCount > 0) showAlert('success', `Unpinned ${successCount} video(s)`);
+                    loadImportantVideos();
+                })
+                .catch(err => {
+                    console.error('Bulk unpin error:', err);
+                    showAlert('error', 'Failed to unpin some videos');
+                });
+        }
+
+        function deleteVideo(videoId, filename) {
+            if (confirm(`Are you sure you want to delete "${filename}"?`)) {
+                fetch(`/api/videos/${videoId}`, { method: 'DELETE' })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.error) {
+                            showAlert('error', data.error);
+                        } else {
+                            showAlert('success', data.message);
+                            if (isShowingImportant) {
+                                loadImportantVideos();
+                            } else {
+                                loadVideos();
+                            }
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error deleting video:', error);
+                        showAlert('error', 'Failed to delete video');
+                    });
+            }
+        }
+
+        function searchVideos() {
+            const searchDate = document.getElementById('videoSearchDate').value;
+            const searchTime = document.getElementById('videoSearchTime').value;
+
+            console.log('Search videos called with:', { searchDate, searchTime });
+
+            if (!searchDate && !searchTime) {
+                showAlert('warning', 'Please enter a date or time to search');
+                return;
+            }
+
+            isSearchActive = true;
+            document.getElementById('clearSearchBtn').classList.remove('d-none');
+
+            // Add spacing class when buttons appear
+            const inputsContainer = document.querySelector('#saved-videos .search-inputs-container');
+            if (inputsContainer) {
+                inputsContainer.classList.add('with-buttons');
+            }
+
+            loadVideos();
+        }
+
+        function clearSearch() {
+            document.getElementById('videoSearchDate').value = '';
+            document.getElementById('videoSearchTime').value = '';
+            isSearchActive = false;
+            document.getElementById('clearSearchBtn').classList.add('d-none');
+
+            // Remove spacing class when buttons disappear
+            const inputsContainer = document.querySelector('#saved-videos .search-inputs-container');
+            if (inputsContainer) {
+                inputsContainer.classList.remove('with-buttons');
+            }
+
+            loadVideos();
+        }
+
+        function searchImportantVideos() {
+            const searchDate = document.getElementById('importantVideoSearchDate').value;
+            const searchTime = document.getElementById('importantVideoSearchTime').value;
+
+            console.log('Search important videos called with:', { searchDate, searchTime });
+
+            if (!searchDate && !searchTime) {
+                showAlert('warning', 'Please enter a date or time to search');
+                return;
+            }
+
+            isSearchActive = true;
+            document.getElementById('clearImportantSearchBtn').classList.remove('d-none');
+
+            // Add spacing class when buttons appear
+            const inputsContainer = document.querySelector('#important-videos .search-inputs-container');
+            if (inputsContainer) {
+                inputsContainer.classList.add('with-buttons');
+            }
+
+            loadImportantVideos();
+        }
+
+        function clearImportantSearch() {
+            document.getElementById('importantVideoSearchDate').value = '';
+            document.getElementById('importantVideoSearchTime').value = '';
+            isSearchActive = false;
+            document.getElementById('clearImportantSearchBtn').classList.add('d-none');
+
+            // Remove spacing class when buttons disappear
+            const inputsContainer = document.querySelector('#important-videos .search-inputs-container');
+            if (inputsContainer) {
+                inputsContainer.classList.remove('with-buttons');
+            }
+
+            loadImportantVideos();
+        }
+
+        function showImportantVideos() {
+            isShowingImportant = true;
+            showSection('important-videos');
+            loadImportantVideos();
+        }
+
+        function backToAllVideos() {
+            isShowingImportant = false;
+            showSection('saved-videos');
+            loadVideos();
+        }
+
+        function loadTrashVideos() {
+            const searchDate = document.getElementById('trashSearchDate').value;
+            const searchTime = document.getElementById('trashSearchTime').value;
+
+            let url = '/api/videos/trash';
+            const params = new URLSearchParams();
+            if (searchDate) {
+                params.append('start_date', searchDate);
+                params.append('end_date', searchDate);
+            }
+            if (searchTime) {
+                params.append('search_time', searchTime);
+            }
+            if (params.toString()) url += '?' + params.toString();
+
+            fetch(url)
+                .then(r => r.json())
+                .then(data => {
+                    if (data.error) return showAlert('error', data.error);
+                    trashVideos = data;
+                    renderTrashTable();
+                })
+                .catch(err => {
+                    console.error('Error loading trash:', err);
+                    showAlert('error', 'Failed to load trash');
+                });
+        }
+
+        function renderTrashTable() {
+            const tbody = document.getElementById('trashVideosTableBody');
+            if (!trashVideos || trashVideos.length === 0) {
+                const searchDate = document.getElementById('trashSearchDate').value;
+                const searchTime = document.getElementById('trashSearchTime').value;
+                let message = 'Trash is empty';
+                if (searchDate || searchTime) message = 'No items match your search';
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="7" class="text-center text-muted">
+                            <i class="fas fa-trash"></i> ${message}
+                        </td>
+                    </tr>
+                `;
+                // Hide bulk buttons
+                document.getElementById('deletePermanentSelectedBtn').classList.add('d-none');
+                document.getElementById('recoverSelectedTrashBtn').classList.add('d-none');
+                document.getElementById('downloadSelectedTrashBtn').classList.add('d-none');
+                return;
+            }
+
+            tbody.innerHTML = trashVideos.map(v => `
+                <tr>
+                    <td><input type="checkbox" class="trash-video-checkbox" value="${v.id}" ${selectedVideos.has(v.id) ? 'checked' : ''} onchange="toggleTrashSelection(${v.id})"></td>
+                    <td><i class=\"fas fa-video text-primary\"></i> ${v.filename}</td>
+                    <td>${formatDateTime(v.start_time)}</td>
+                    <td>${formatDateTime(v.end_time)}</td>
+                    <td>${v.duration_minutes} min</td>
+                    <td>${v.file_size_mb} MB</td>
+                    <td><span class="badge ${v.file_exists ? 'bg-success' : 'bg-danger'}">${v.file_exists ? 'Available' : 'Missing'}</span></td>
+                </tr>
+            `).join('');
+
+            // Sync header checkbox and bulk actions
+            const boxes = document.querySelectorAll('.trash-video-checkbox');
+            const checked = document.querySelectorAll('.trash-video-checkbox:checked').length;
+            const header = document.getElementById('selectAllTrashCheckbox');
+            header.checked = boxes.length > 0 && checked === boxes.length;
+            header.indeterminate = checked > 0 && checked < boxes.length;
+            const any = checked > 0;
+            document.getElementById('deletePermanentSelectedBtn').classList.toggle('d-none', !any);
+            document.getElementById('recoverSelectedTrashBtn').classList.toggle('d-none', !any);
+            document.getElementById('downloadSelectedTrashBtn').classList.toggle('d-none', !any);
+        }
+
+        function toggleSelectAllTrash() {
+            const header = document.getElementById('selectAllTrashCheckbox');
+            const boxes = document.querySelectorAll('.trash-video-checkbox');
+            boxes.forEach(cb => {
+                cb.checked = header.checked;
+                if (header.checked) selectedVideos.add(parseInt(cb.value)); else selectedVideos.delete(parseInt(cb.value));
+            });
+            const any = header.checked;
+            document.getElementById('deletePermanentSelectedBtn').classList.toggle('d-none', !any);
+            document.getElementById('recoverSelectedTrashBtn').classList.toggle('d-none', !any);
+            document.getElementById('downloadSelectedTrashBtn').classList.toggle('d-none', !any);
+        }
+
+        function toggleTrashSelection(id) {
+            if (selectedVideos.has(id)) selectedVideos.delete(id); else selectedVideos.add(id);
+            const boxes = document.querySelectorAll('.trash-video-checkbox');
+            const checked = document.querySelectorAll('.trash-video-checkbox:checked').length;
+            const header = document.getElementById('selectAllTrashCheckbox');
+            header.checked = checked === boxes.length;
+            header.indeterminate = checked > 0 && checked < boxes.length;
+            const any = checked > 0;
+            document.getElementById('deletePermanentSelectedBtn').classList.toggle('d-none', !any);
+            document.getElementById('recoverSelectedTrashBtn').classList.toggle('d-none', !any);
+            document.getElementById('downloadSelectedTrashBtn').classList.toggle('d-none', !any);
+        }
+
+        function searchTrash() {
+            const date = document.getElementById('trashSearchDate').value;
+            const time = document.getElementById('trashSearchTime').value;
+            if (!date && !time) return showAlert('warning', 'Please enter a date or time to search');
+            document.getElementById('clearTrashSearchBtn').classList.remove('d-none');
+            const inputsContainer = document.querySelector('#trash .search-inputs-container');
+            if (inputsContainer) inputsContainer.classList.add('with-buttons');
+            loadTrashVideos();
+        }
+
+        function clearTrashSearch() {
+            document.getElementById('trashSearchDate').value = '';
+            document.getElementById('trashSearchTime').value = '';
+            document.getElementById('clearTrashSearchBtn').classList.add('d-none');
+            const inputsContainer = document.querySelector('#trash .search-inputs-container');
+            if (inputsContainer) inputsContainer.classList.remove('with-buttons');
+            loadTrashVideos();
+        }
+
+        function recoverSelectedFromTrash() {
+            const ids = Array.from(selectedVideos);
+            if (ids.length === 0) return showAlert('warning', 'Please select videos to recover');
+            Promise.all(ids.map(id => fetch(`/api/videos/${id}/recover`, { method: 'POST' }).then(r => r.json())))
+                .then(results => {
+                    const ok = results.filter(r => r && r.success).length;
+                    if (ok > 0) showAlert('success', `Recovered ${ok} video(s)`);
+                    selectedVideos.clear();
+                    loadTrashVideos();
+                    loadVideos();
+                })
+                .catch(err => {
+                    console.error('Recover error:', err);
+                    showAlert('error', 'Failed to recover some videos');
+                });
+        }
+
+        function deletePermanentlySelected() {
+            const ids = Array.from(selectedVideos);
+            if (ids.length === 0) return showAlert('warning', 'Please select videos to delete');
+            if (!confirm(`Delete ${ids.length} video(s) permanently? This cannot be undone.`)) return;
+            Promise.all(ids.map(id => fetch(`/api/videos/${id}/delete_permanent`, { method: 'DELETE' }).then(r => r.json())))
+                .then(results => {
+                    const ok = results.filter(r => r && r.success).length;
+                    if (ok > 0) showAlert('success', `Deleted ${ok} video(s)`);
+                    selectedVideos.clear();
+                    loadTrashVideos();
+                })
+                .catch(err => {
+                    console.error('Permanent delete error:', err);
+                    showAlert('error', 'Failed to delete some videos');
+                });
+        }
+
+        // Checkbox management functions
+        function toggleSelectAll() {
+            const selectAllCheckbox = document.getElementById('selectAllCheckbox');
+            const videoCheckboxes = document.querySelectorAll('.video-checkbox');
+            const deleteAllBtn = document.getElementById('deleteAllVideosBtn');
+            const downloadSelBtn = document.getElementById('downloadSelectedVideosBtn');
+            const pinSelBtn = document.getElementById('pinSelectedVideosBtn');
+
+            console.log('Toggle select all:', selectAllCheckbox.checked, 'checkboxes found:', videoCheckboxes.length);
+
+            videoCheckboxes.forEach(checkbox => {
+                checkbox.checked = selectAllCheckbox.checked;
+                if (selectAllCheckbox.checked) {
+                    selectedVideos.add(parseInt(checkbox.value));
+                } else {
+                    selectedVideos.delete(parseInt(checkbox.value));
+                }
+            });
+
+            // Show/hide bulk action buttons based on selection
+            const anySelected = selectAllCheckbox.checked;
+            if (deleteAllBtn) deleteAllBtn.classList.toggle('d-none', !anySelected);
+            if (downloadSelBtn) downloadSelBtn.classList.toggle('d-none', !anySelected);
+            if (pinSelBtn) pinSelBtn.classList.toggle('d-none', !anySelected);
+
+            console.log('Selected videos:', Array.from(selectedVideos));
+        }
+
+        function toggleSelectAllImportant() {
+            const selectAllCheckbox = document.getElementById('selectAllImportantCheckbox');
+            const videoCheckboxes = document.querySelectorAll('.important-video-checkbox');
+            const deleteAllBtn = document.getElementById('deleteAllImportantVideosBtn');
+            const downloadSelImpBtn = document.getElementById('downloadSelectedImportantBtn');
+            const unpinSelBtn = document.getElementById('unpinSelectedVideosBtn');
+
+            videoCheckboxes.forEach(checkbox => {
+                checkbox.checked = selectAllCheckbox.checked;
+                if (selectAllCheckbox.checked) {
+                    selectedVideos.add(parseInt(checkbox.value));
+                } else {
+                    selectedVideos.delete(parseInt(checkbox.value));
+                }
+            });
+
+            // Show/hide bulk action buttons based on selection
+            const anySelected = selectAllCheckbox.checked;
+            if (deleteAllBtn) deleteAllBtn.classList.toggle('d-none', !anySelected);
+            if (downloadSelImpBtn) downloadSelImpBtn.classList.toggle('d-none', !anySelected);
+            if (unpinSelBtn) unpinSelBtn.classList.toggle('d-none', !anySelected);
+        }
+
+        function toggleVideoSelection(videoId) {
+            if (selectedVideos.has(videoId)) {
+                selectedVideos.delete(videoId);
+            } else {
+                selectedVideos.add(videoId);
+            }
+
+            // Update select all checkbox
+            const videoCheckboxes = document.querySelectorAll('.video-checkbox');
+            const checkedCount = document.querySelectorAll('.video-checkbox:checked').length;
+            const selectAllCheckbox = document.getElementById('selectAllCheckbox');
+            const deleteAllBtn = document.getElementById('deleteAllVideosBtn');
+
+            selectAllCheckbox.checked = checkedCount === videoCheckboxes.length;
+            selectAllCheckbox.indeterminate = checkedCount > 0 && checkedCount < videoCheckboxes.length;
+
+            // Show/hide bulk action buttons based on selection
+            const downloadSelBtn = document.getElementById('downloadSelectedVideosBtn');
+            const pinSelBtn = document.getElementById('pinSelectedVideosBtn');
+            const anySelected = checkedCount > 0;
+            if (deleteAllBtn) deleteAllBtn.classList.toggle('d-none', !anySelected);
+            if (downloadSelBtn) downloadSelBtn.classList.toggle('d-none', !anySelected);
+            if (pinSelBtn) pinSelBtn.classList.toggle('d-none', !anySelected);
+        }
+
+        function toggleImportantVideoSelection(videoId) {
+            if (selectedVideos.has(videoId)) {
+                selectedVideos.delete(videoId);
+            } else {
+                selectedVideos.add(videoId);
+            }
+
+            // Update select all checkbox
+            const videoCheckboxes = document.querySelectorAll('.important-video-checkbox');
+            const checkedCount = document.querySelectorAll('.important-video-checkbox:checked').length;
+            const selectAllCheckbox = document.getElementById('selectAllImportantCheckbox');
+            const deleteAllBtn = document.getElementById('deleteAllImportantVideosBtn');
+
+            selectAllCheckbox.checked = checkedCount === videoCheckboxes.length;
+            selectAllCheckbox.indeterminate = checkedCount > 0 && checkedCount < videoCheckboxes.length;
+
+            // Show/hide bulk action buttons based on selection
+            const downloadSelImpBtn = document.getElementById('downloadSelectedImportantBtn');
+            const unpinSelBtn = document.getElementById('unpinSelectedVideosBtn');
+            const anySelected = checkedCount > 0;
+            if (deleteAllBtn) deleteAllBtn.classList.toggle('d-none', !anySelected);
+            if (downloadSelImpBtn) downloadSelImpBtn.classList.toggle('d-none', !anySelected);
+            if (unpinSelBtn) unpinSelBtn.classList.toggle('d-none', !anySelected);
+        }
+
+
+        function deleteAllVideos() {
+            const videosToDelete = Array.from(selectedVideos);
+
+            console.log('Delete all videos called, selected videos:', videosToDelete);
+
+            if (videosToDelete.length === 0) {
+                showAlert('warning', 'Please select videos to delete');
+                return;
+            }
+
+            if (confirm(`Are you sure you want to delete ${videosToDelete.length} video(s)?`)) {
+                let deletePromises = videosToDelete.map(videoId =>
+                    fetch(`/api/videos/${videoId}`, { method: 'DELETE' })
+                        .then(response => response.json())
+                );
+
+                Promise.all(deletePromises)
+                    .then(results => {
+                        const successCount = results.filter(r => r.success).length;
+                        showAlert('success', `Successfully deleted ${successCount} video(s)`);
+                        selectedVideos.clear();
+
+                        // Clear all checkboxes
+                        document.querySelectorAll('.video-checkbox, .important-video-checkbox').forEach(cb => {
+                            cb.checked = false;
+                        });
+                        document.getElementById('selectAllCheckbox').checked = false;
+                        document.getElementById('selectAllImportantCheckbox').checked = false;
+
+                        // Refresh the appropriate table
+                        if (isShowingImportant) {
+                            loadImportantVideos();
+                        } else {
+                            loadVideos();
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error deleting videos:', error);
+                        showAlert('error', 'Failed to delete some videos');
+                    });
+            }
+        }
+
+        // Test function to check API
+        function testAPI() {
+            console.log('Testing API...');
+            fetch('/api/videos')
+                .then(response => {
+                    console.log('API Response status:', response.status);
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('API Response data:', data);
+                })
+                .catch(error => {
+                    console.error('API Error:', error);
+                });
+        }
+
+        // Alert function for user feedback
+        function showAlert(type, message) {
+            const alertClass = type === 'error' ? 'alert-danger' :
+                type === 'success' ? 'alert-success' :
+                    type === 'warning' ? 'alert-warning' : 'alert-info';
+
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert ${alertClass} alert-dismissible fade show position-fixed`;
+            alertDiv.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+            alertDiv.innerHTML = `
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            document.body.appendChild(alertDiv);
+
+            // Auto-remove after 5 seconds
+            setTimeout(() => {
+                if (alertDiv.parentNode) {
+                    alertDiv.parentNode.removeChild(alertDiv);
+                }
+            }, 5000);
+        }
+
+        // Video Management Event Listeners
+        document.addEventListener('DOMContentLoaded', function () {
+            // Test API on load
+            testAPI();
+
+            // Load parking slots data on page initialization for real-time updates
+            loadSlotsData();
+
+            // Video recording controls
+            document.getElementById('startRecordingBtn').addEventListener('click', startRecording);
+            document.getElementById('stopRecordingBtn').addEventListener('click', stopRecording);
+            document.getElementById('refreshVideosBtn').addEventListener('click', loadVideos);
+            document.getElementById('showImportantBtn').addEventListener('click', showImportantVideos);
+            document.getElementById('backToAllVideosBtn').addEventListener('click', backToAllVideos);
+
+            // Search controls
+            document.getElementById('searchVideosBtn').addEventListener('click', searchVideos);
+            document.getElementById('clearSearchBtn').addEventListener('click', clearSearch);
+            document.getElementById('searchImportantVideosBtn').addEventListener('click', searchImportantVideos);
+            document.getElementById('clearImportantSearchBtn').addEventListener('click', clearImportantSearch);
+
+            // Bulk operations
+            document.getElementById('deleteAllVideosBtn').addEventListener('click', deleteAllVideos);
+            document.getElementById('deleteAllImportantVideosBtn').addEventListener('click', deleteAllVideos);
+            document.getElementById('downloadSelectedVideosBtn').addEventListener('click', downloadSelectedVideos);
+            document.getElementById('pinSelectedVideosBtn').addEventListener('click', pinSelectedVideos);
+            document.getElementById('downloadSelectedImportantBtn').addEventListener('click', downloadSelectedVideos);
+            document.getElementById('unpinSelectedVideosBtn').addEventListener('click', unpinSelectedVideos);
+
+            // Trash events
+            document.getElementById('backToSavedFromTrashBtn').addEventListener('click', () => { showSection('saved-videos'); loadVideos(); });
+            document.getElementById('searchTrashBtn').addEventListener('click', searchTrash);
+            document.getElementById('clearTrashSearchBtn').addEventListener('click', clearTrashSearch);
+            document.getElementById('deletePermanentSelectedBtn').addEventListener('click', deletePermanentlySelected);
+            document.getElementById('recoverSelectedTrashBtn').addEventListener('click', recoverSelectedFromTrash);
+            document.getElementById('downloadSelectedTrashBtn').addEventListener('click', downloadSelectedVideos);
+
+            // Socket.IO events for video recording
+            socket.on('video_recording_status', function (data) {
+                updateRecordingUI(data);
+            });
+
+            socket.on('video_recording_error', function (data) {
+                showAlert('error', data.error);
+            });
+        });
+
+        // Update recording status every 2 seconds for faster updates
+        setInterval(updateRecordingStatus, 2000);
+
+        // Parking Status Bar
+        (function initParkingStatusBar(){
+            const bar = document.getElementById('parking-status-bar');
+            const text = document.getElementById('parking-status-text');
+            if (!bar || !text) return;
+            
+            function updateStatusBar() {
+                const totalEl = document.getElementById('total-slots');
+                const occupiedEl = document.getElementById('occupied-slots');
+                if (!totalEl || !occupiedEl) return;
+                
+                const total = parseInt(totalEl.textContent || '0', 10);
+                const occupied = parseInt(occupiedEl.textContent || '0', 10);
+                
+                if (total === 0) {
+                    bar.style.width = '0%';
+                    text.textContent = 'No slots configured';
+                    return;
+                }
+                
+                const percentage = Math.round((occupied / total) * 100);
+                bar.style.width = percentage + '%';
+                text.textContent = percentage + '% Occupied';
+                
+                // Update color based on occupancy
+                if (percentage >= 90) {
+                    bar.style.background = '#dc3545';
+                } else if (percentage >= 70) {
+                    bar.style.background = '#ffc107';
+                } else {
+                    bar.style.background = 'linear-gradient(90deg, #28a745 0%, #ffc107 50%, #dc3545 100%)';
+                }
+            }
+            
+            // Update on occupancy changes
+            socket.on('occupancy_update', updateStatusBar);
+            socket.on('detection_update', updateStatusBar);
+            
+            // Initial update
+            updateStatusBar();
+            setInterval(updateStatusBar, 2000);
+        })();
+
+        // Recording card controls (Dashboard)
+        (function initRecordingCard(){
+            const toggleBtn = document.getElementById('dashRecToggleBtn');
+            const summary = document.getElementById('recording-summary');
+            if (!toggleBtn) return;
+            
+            let isRecording = false;
+            
+            const apply = (data) => {
+                isRecording = data && data.is_recording;
+                const icon = toggleBtn.querySelector('i');
+                const text = toggleBtn.querySelector('span') || toggleBtn.childNodes[1];
+                
+                if (isRecording) {
+                    toggleBtn.className = 'btn btn-danger';
+                    icon.className = 'fas fa-stop';
+                    if (text && text.nodeType === Node.TEXT_NODE) {
+                        text.textContent = ' Stop';
+                    } else {
+                        toggleBtn.innerHTML = '<i class="fas fa-stop"></i> Stop';
+                    }
+                    const dur = data.recording_info && data.recording_info.duration ? Math.floor(data.recording_info.duration) : 0;
+                    const m = Math.floor(dur/60), s = String(dur%60).padStart(2,'0');
+                    summary.textContent = `Started • ${m}:${s}`;
+                } else {
+                    toggleBtn.className = 'btn btn-success';
+                    icon.className = 'fas fa-play';
+                    if (text && text.nodeType === Node.TEXT_NODE) {
+                        text.textContent = ' Start';
+                    } else {
+                        toggleBtn.innerHTML = '<i class="fas fa-play"></i> Start';
+                    }
+                    summary.textContent = 'Stopped';
+                }
+            };
+            
+            const refresh = () => fetch('/api/videos/recording/status').then(r=>r.json()).then(apply).catch(()=>{});
+            
+            toggleBtn.addEventListener('click', () => {
+                const action = isRecording ? 'stop' : 'start';
+                const url = `/api/videos/recording/${action}`;
+                const method = 'POST';
+                
+                fetch(url, { method })
+                    .then(r => r.json())
+                    .then(() => {
+                        refresh();
+                        showNotification(`Recording ${action}ed`, isRecording ? 'info' : 'success');
+                        if (action === 'stop') loadVideos();
+                    })
+                    .catch(() => showNotification(`Failed to ${action} recording`, 'danger'));
+            });
+            
+            // sync via socket too
+            socket.on('video_recording_status', apply);
+            setInterval(refresh, 3000);
+            refresh();
+        })();
+
+        // Saved vs Pinned videos mini slider counts (Dashboard)
+        (function initVideosCounts(){
+            const slider = document.getElementById('videos-mini-slider');
+            const textContainer = document.querySelector('.mini-slide-text');
+            if (!slider || !textContainer) return;
+            
+            const slides = slider.querySelectorAll('.mini-slide');
+            const textSlides = textContainer.querySelectorAll('.mini-slide');
+            let i = 0;
+            
+            const show = (idx) => { 
+                slides.forEach((el, j)=> el.style.display = (j===idx ? 'flex' : 'none'));
+                textSlides.forEach((el, j)=> el.style.display = (j===idx ? 'block' : 'none'));
+            };
+            show(i);
+            setInterval(()=>{ i=(i+1)%slides.length; show(i); }, 5000);
+
+            const refreshCounts = () => {
+                // Saved count
+                fetch('/api/videos').then(r=>r.json()).then(d=>{
+                    if (Array.isArray(d)) document.getElementById('saved-count').textContent = d.length;
+                }).catch(()=>{});
+                // Pinned count
+                fetch('/api/videos/pinned').then(r=>r.json()).then(d=>{
+                    if (Array.isArray(d)) document.getElementById('pinned-count').textContent = d.length;
+                }).catch(()=>{});
+            };
+            refreshCounts();
+            setInterval(refreshCounts, 10000);
+        })();
+
+        // Popup alerts and quick alerts
+        (function initAlerts(){
+            const quickAlerts = document.getElementById('quick-alerts');
+            if (!quickAlerts) return;
+            
+            let alertCount = 0;
+            const maxQuickAlerts = 3;
+            
+            function showPopupAlert(msg, level='info', duration=5000) {
+                const alertClass = level === 'danger' ? 'alert-danger' :
+                    level === 'warning' ? 'alert-warning' :
+                    level === 'success' ? 'alert-success' : 'alert-info';
+                
+                const alertDiv = document.createElement('div');
+                alertDiv.className = `alert ${alertClass} alert-dismissible fade show position-fixed`;
+                alertDiv.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px; max-width: 400px;';
+                alertDiv.innerHTML = `
+                    <i class="fas fa-bell me-2"></i>${msg}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                `;
+                document.body.appendChild(alertDiv);
+                
+                // Auto-remove after duration
+                setTimeout(() => {
+                    if (alertDiv.parentNode) {
+                        alertDiv.parentNode.removeChild(alertDiv);
+                    }
+                }, duration);
+            }
+            
+            function addQuickAlert(msg, level='info') {
+                if (alertCount >= maxQuickAlerts) return;
+                
+                if (quickAlerts.firstElementChild && quickAlerts.firstElementChild.classList.contains('text-muted')) {
+                    quickAlerts.innerHTML = '';
+                }
+                
+                const alertDiv = document.createElement('div');
+                const color = level === 'danger' ? '#dc3545' : level === 'warning' ? '#ffc107' : '#0d6efd';
+                alertDiv.innerHTML = `
+                    <div class="d-flex align-items-center justify-content-between mb-1">
+                        <span style="color:${color}"><i class="fas fa-circle"></i></span>
+                        <small class="text-muted">${new Date().toLocaleTimeString()}</small>
+                    </div>
+                    <div class="small">${msg}</div>
+                `;
+                quickAlerts.appendChild(alertDiv);
+                alertCount++;
+                
+                // Keep only last 3
+                const children = Array.from(quickAlerts.children);
+                if (children.length > maxQuickAlerts) {
+                    children.slice(0, children.length - maxQuickAlerts).forEach(el => el.remove());
+                }
+            }
+            
+            // Low free slots monitoring
+            function monitorFreeSlots(){
+                const freeEl = document.getElementById('free-slots');
+                const totalEl = document.getElementById('total-slots');
+                if (!freeEl || !totalEl) return;
+                const free = parseInt(freeEl.textContent || '0', 10);
+                const total = parseInt(totalEl.textContent || '0', 10);
+                if (total > 0 && free <= Math.max(1, Math.floor(total * 0.1))) {
+                    const msg = `Low availability: ${free}/${total} free`;
+                    showPopupAlert(msg, 'warning');
+                    addQuickAlert(msg, 'warning');
+                }
+            }
+            setInterval(monitorFreeSlots, 10000);
+
+            // Recording alerts
+            socket.on('video_recording_status', function(d){
+                const msg = d && d.is_recording ? 'Recording started' : 'Recording stopped';
+                const level = d && d.is_recording ? 'success' : 'info';
+                showPopupAlert(msg, level);
+                addQuickAlert(msg, level);
+            });
+            
+            // Occupancy alerts
+            socket.on('occupancy_update', function(d){
+                if (d && typeof d.free_slots === 'number' && typeof d.total_slots === 'number') {
+                    if (d.free_slots === 0) {
+                        const msg = 'Parking lot is FULL';
+                        showPopupAlert(msg, 'danger');
+                        addQuickAlert(msg, 'danger');
+                    } else if (d.free_slots === d.total_slots) {
+                        const msg = 'Parking lot is EMPTY';
+                        showPopupAlert(msg, 'info');
+                        addQuickAlert(msg, 'info');
+                    }
+                }
+            });
+            
+            // Request alerts
+            socket.on('request_processed', function(data){
+                const msg = `Request ${data.request_id} ${data.action} via ${data.method}`;
+                showPopupAlert(msg, 'success');
+                addQuickAlert(msg, 'success');
+            });
+        })();
+
+        // Shared stats recompute to keep Dashboard and Parking Lot in sync
+        function recomputeAndRenderStats() {
+            // Get total from calibration or use default
+            let total = 0;
+            try {
+                const calRes = fetch('/api/calibration/slots');
+                calRes.then(r => r.json()).then(cal => {
+                    if (cal && Array.isArray(cal.slots)) {
+                        total = cal.slots.length;
+                        updateStatsFromTotal(total);
+                    }
+                }).catch(() => {
+                    // Fallback to current dashboard values
+                    const totalEl = document.getElementById('total-slots');
+                    total = parseInt(totalEl ? totalEl.textContent : '0', 10);
+                    updateStatsFromTotal(total);
+                });
+            } catch (e) {
+                const totalEl = document.getElementById('total-slots');
+                total = parseInt(totalEl ? totalEl.textContent : '0', 10);
+                updateStatsFromTotal(total);
+            }
+        }
+
+        function updateStatsFromTotal(total) {
+            let occupied = 0;
+            let free = 0;
+
+            if (total > 0) {
+                const statuses = window.currentSlotStatuses || {};
+                occupied = Object.values(statuses).reduce((acc, status) => acc + (status === 'occupied' ? 1 : 0), 0);
+                free = Math.max(total - occupied, 0);
+            }
+
+            // Update Parking Lot cards
+            updateParkingSlotsStats(total, free, occupied);
+
+            // Update Dashboard cards
+            const totalEl = document.getElementById('total-slots');
+            const freeEl = document.getElementById('free-slots');
+            const occEl = document.getElementById('occupied-slots');
+            if (totalEl) totalEl.textContent = total;
+            if (freeEl) freeEl.textContent = free;
+            if (occEl) occEl.textContent = occupied;
+        }
+
+        // Client Management Functions
+        let currentClientId = null;
+        let clients = [];
+
+        // Load clients data
+        function loadClients() {
+            fetch('/api/clients')
+                .then(response => response.json())
+                .then(data => {
+                    clients = data;
+                    renderClientsTable();
+                })
+                .catch(error => {
+                    console.error('Error loading clients:', error);
+                    showNotification('Error loading clients', 'error');
+                });
+        }
+
+        // Render clients table
+        function renderClientsTable() {
+            const tbody = document.getElementById('clientsTableBody');
+            if (!tbody) return;
+
+            if (clients.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="8" class="text-center text-muted">No clients found</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = clients.map(client => `
+                <tr>
+                    <td>${client.id}</td>
+                    <td>${client.name}</td>
+                    <td>${client.nrc_number}</td>
+                    <td>${client.contact}</td>
+                    <td>${client.email || '-'}</td>
+                    <td>${client.number_plate}</td>
+                    <td>${formatLocalTime(convertToLocalTime(client.created_at))}</td>
+                    <td>
+                        <div class="btn-group btn-group-sm" role="group">
+                            <button class="btn btn-outline-primary" onclick="editClient(${client.id})" title="Edit">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-outline-danger" onclick="deleteClient(${client.id})" title="Delete">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // Search clients
+        function searchClients() {
+            const searchTerm = document.getElementById('clientSearchInput').value.trim();
+            if (!searchTerm) {
+                renderClientsTable();
+                return;
+            }
+
+            fetch(`/api/clients/search?q=${encodeURIComponent(searchTerm)}`)
+                .then(response => response.json())
+                .then(data => {
+                    clients = data;
+                    renderClientsTable();
+                })
+                .catch(error => {
+                    console.error('Error searching clients:', error);
+                    showNotification('Error searching clients', 'error');
+                });
+        }
+
+        // Add new client
+        function addClient() {
+            currentClientId = null;
+            document.getElementById('clientModalLabel').textContent = 'Add New Client';
+            document.getElementById('clientForm').reset();
+            document.getElementById('clientId').value = '';
+            
+            const modal = new bootstrap.Modal(document.getElementById('clientModal'));
+            modal.show();
+        }
+
+        // Edit client
+        function editClient(clientId) {
+            const client = clients.find(c => c.id === clientId);
+            if (!client) return;
+
+            currentClientId = clientId;
+            document.getElementById('clientModalLabel').textContent = 'Edit Client';
+            document.getElementById('clientId').value = client.id;
+            document.getElementById('clientName').value = client.name;
+            document.getElementById('clientNrc').value = client.nrc_number;
+            document.getElementById('clientContact').value = client.contact;
+            document.getElementById('clientEmail').value = client.email || '';
+            document.getElementById('clientPlate').value = client.number_plate;
+            
+            const modal = new bootstrap.Modal(document.getElementById('clientModal'));
+            modal.show();
+        }
+
+        // Save client
+        function saveClient() {
+            const form = document.getElementById('clientForm');
+            const formData = new FormData(form);
+            const clientData = {
+                name: formData.get('name'),
+                nrc_number: formData.get('nrc_number'),
+                contact: formData.get('contact'),
+                email: formData.get('email') || null,
+                number_plate: formData.get('number_plate')
+            };
+
+            // Validate required fields
+            if (!clientData.name || !clientData.nrc_number || !clientData.contact || !clientData.number_plate) {
+                showNotification('Please fill in all required fields', 'error');
+                return;
+            }
+
+            const url = currentClientId ? `/api/clients/${currentClientId}` : '/api/clients';
+            const method = currentClientId ? 'PUT' : 'POST';
+
+            fetch(url, {
+                method: method,
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(clientData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showNotification(data.message, 'success');
+                    bootstrap.Modal.getInstance(document.getElementById('clientModal')).hide();
+                    loadClients();
+                } else {
+                    showNotification(data.error || 'Error saving client', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error saving client:', error);
+                showNotification('Error saving client', 'error');
+            });
+        }
+
+        // Delete client
+        function deleteClient(clientId) {
+            currentClientId = clientId;
+            const modal = new bootstrap.Modal(document.getElementById('deleteClientModal'));
+            modal.show();
+        }
+
+        // Confirm delete client
+        function confirmDeleteClient() {
+            if (!currentClientId) return;
+
+            fetch(`/api/clients/${currentClientId}`, {
+                method: 'DELETE'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showNotification(data.message, 'success');
+                    bootstrap.Modal.getInstance(document.getElementById('deleteClientModal')).hide();
+                    loadClients();
+                } else {
+                    showNotification(data.error || 'Error deleting client', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error deleting client:', error);
+                showNotification('Error deleting client', 'error');
+            });
+        }
+
+        // Initialize client management
+        function initClientManagement() {
+            // Event listeners
+            document.getElementById('addClientBtn').addEventListener('click', addClient);
+            document.getElementById('saveClientBtn').addEventListener('click', saveClient);
+            document.getElementById('confirmDeleteClientBtn').addEventListener('click', confirmDeleteClient);
+            document.getElementById('refreshClientsBtn').addEventListener('click', loadClients);
+            document.getElementById('clientSearchInput').addEventListener('input', searchClients);
+            document.getElementById('clientFilterSelect').addEventListener('change', function() {
+                if (this.value === 'recent') {
+                    // Filter to show only recent clients (last 7 days)
+                    const recentClients = clients.filter(client => {
+                        const clientDate = new Date(client.created_at);
+                        const weekAgo = new Date();
+                        weekAgo.setDate(weekAgo.getDate() - 7);
+                        return clientDate >= weekAgo;
+                    });
+                    clients = recentClients;
+                    renderClientsTable();
+                } else {
+                    loadClients();
+                }
+            });
+        }
+
+    </script>
+
+    <!-- Client Modal -->
+    <div class="modal fade" id="clientModal" tabindex="-1" aria-labelledby="clientModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="clientModalLabel">Add New Client</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="clientForm">
+                        <input type="hidden" id="clientId" name="id">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label for="clientName" class="form-label">Full Name *</label>
+                                <input type="text" class="form-control" id="clientName" name="name" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="clientNrc" class="form-label">NRC Number *</label>
+                                <input type="text" class="form-control" id="clientNrc" name="nrc_number" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="clientContact" class="form-label">Contact Number *</label>
+                                <input type="tel" class="form-control" id="clientContact" name="contact" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="clientEmail" class="form-label">Email Address</label>
+                                <input type="email" class="form-control" id="clientEmail" name="email">
+                            </div>
+                            <div class="col-md-12">
+                                <label for="clientPlate" class="form-label">Number Plate *</label>
+                                <input type="text" class="form-control" id="clientPlate" name="number_plate" required>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="saveClientBtn">Save Client</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div class="modal fade" id="deleteClientModal" tabindex="-1" aria-labelledby="deleteClientModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteClientModalLabel">Confirm Delete</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to delete this client? This action cannot be undone.</p>
+                    <div class="alert alert-warning">
+                        <strong>Warning:</strong> This will permanently remove the client from the system.
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-danger" id="confirmDeleteClientBtn">Delete Client</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+
+</html>

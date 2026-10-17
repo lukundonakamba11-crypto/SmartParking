@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="row g-3">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Controls</h5>
+                <div class="d-flex flex-wrap gap-2">
+                    <button id="btnStartLive" class="btn btn-primary">Start Live Stream</button>
+                    <button id="btnStopLive" class="btn btn-outline-primary">Stop Live Stream</button>
+                    <button id="btnStartViewer" class="btn btn-secondary">Start Viewer Script</button>
+                    <button id="btnStopViewer" class="btn btn-outline-secondary">Stop Viewer Script</button>
+                    <button id="btnStartCalibration" class="btn btn-warning">Start Calibration Script</button>
+                    <button id="btnStopCalibration" class="btn btn-outline-warning">Stop Calibration Script</button>
+                    <button id="btnStartDetection" class="btn btn-success">Start Detection Script</button>
+                    <button id="btnStopDetection" class="btn btn-outline-success">Stop Detection Script</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Live View</h5>
+                <img id="liveFrame" class="img-fluid rounded border" alt="live" />
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="card h-100">
+            <div class="card-body">
+                <h5 class="card-title">Script Logs</h5>
+                <pre id="logs"
+                    style="height: 420px; overflow:auto; background:#111; color:#0f0; padding:10px; border-radius:6px;"></pre>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
